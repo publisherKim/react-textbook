@@ -255,5 +255,174 @@
   끝으로 가상DOM의 장점은 PhantomJS 같은 헤드리스 브라우저 없이도 단위 테스트를 수행할수 있다는 점이다.
   Jasmine(http://jamine.github.io)을 기반으로 만든 Jest(https://facebook.gihub.io/jest)를 사용하면 명령줄에서 바로 
   React 컴포넌트를 테스트 가능하다.
+```
 
+#### React의 폭넓은 개발 커뮤니티와 생태계
+```
+  거대기업이 사용한다는 장점 (검증 되었다는 의미)
+  개선 속도가 나날이 빨라짐
+
+  React 개발 커뮤니티 목록
+    - 컴포넌트: https://github.com/brillout/awesome-react-components, http://devarchy.com/react-components
+    - 구글 머티리얼 디자인 명세에 따라 구현한: https://github.com/react-toolbox/react-toolbox
+    - 머티리얼 디자인: https://github.com/react-toolbox/react-toolbox
+    - 오피스 365용 React 컴포넌트: https://github.com/OfficeDev/office-ui-fabric-react
+    - 오픈 소스 자바스크리트 패키지 모음 사이트: https://js.coach/
+    - React 컴포넌트 모음: https://react.rocks
+    - 칸 아카데미으 React 컴포넌트: https://khan.github.io/react-components
+    - React 컴포넌트 검색: http://www.reactjsx.com
+
+  오픈소스의 경우 프로젝트의 마케팅은 해당 오픈 소스의 폭넓은 전파나 코드 자체의 높은 수준만큼 중요하다.
+
+  프로젝트의 웹 사이트 문서, 예제가 충분하지 않거나 로고가 이상한 경우에는 피하자.
+  브랜드가 다는 아니지만, 믿고 선택하면 평타는 간다는 느낌
+```
+
+### React의 단점
+```
+  선언형과 명령형 같은 주제는 주관적 주제로 장단점에 있어서 양날의 검이다.
+
+  리액트 경험자들의 단점 모음
+    - React는 스위스 군용칼처럼 모든 기능을 갖춘 프레임워크는 아니다. 그러나 라이브러리를 이용하면 더 폭넓은 사용이 가능하다.
+    - React는 다른 프레임워크만큼 성숙하지 않다. React의 핵심 API는 여전히 변화하고 있으며 컴포넌트의 생태계, 플러그인, 추가 기능등에 관한 모범 사례도 여전히 개발 중이다.
+    - React에 정통한 수준이 될 만한 모범 사례나 훌륭한 책, 강의, 자료 등이 부족하다.
+    - 단방향 바인딩은 복잡도를 줄이지만, 양방향 데이터 바인딩을 이용하는 개발자들에겐 불편하다.
+    - React를 리액티브 프래이라고 보기엔 부족하다. RxJS 같은 도구를 사용해야 한다.(이벤트 기반이고 탄력성과 반응성을 지향 한다면) https://github.com/Reactive-Extensions/RxJS
+```
+
+### 웹 애플리케이션에 React 적용하기
+```
+  React Router나 데이터 관리 라이브러리를 떼어놓고, React 자체만 놓고보면 Backbone, Ember, AngularJS 같은 프레임워크보다는 템플릿 엔진(Handlebars, Blaze)이나 DOM 조작을 위한 
+  라이브러리(jQuery, Zepto)와 더 비슷하다. 사실 많은 팀이 여러 프레임웍이나 라이브러리를 React로 교체해 성공했다.
+
+  React는 UI 일부에만 적용 가능하다. 서서히 React로 리팩토링도 가능하단 뜻
+
+  특정 백엔드에 종속적이지 않다. (MERN 스택 같은것이 필수가 아님)
+  React는 UI 라이브러리일 뿐 어떤 형태의 백엔드나 프론트엔드 데이터 관리 라이브러리와도 공존 할 수 있다.
+
+  정리
+    - UI 라이브러리로 React와 관련된 Redux나 React Router를 활용한 단일 페이지 애플리케이션 스택의 구성
+    - MVC의 V를 대체하는 UI 라이브러리로 기존 MVC 프레임워크와 결합
+    - jQuery를 기반으로 서버 측 렌더링을 거친 애플리케이션에서 자동완성 등 일부 기능을 위한 UI 컴포넌트로 활용
+    - 대부분의 로직을 직접 처리하는 전통적인 방식의 백엔드에서 서버 측 렌더링 템플릿 라이브러리로 활용
+    - 백엔드와 프론트엔드에서 모두 자바스크립트를 사용하는 경우(express-react-views를 활용한 Express.js 등)
+    - React Native를 UI 라이브러리로 사용한 모바일 앱
+    - 여러 가지 렌더링 대상에 적용할 목적으로 사용하는 UI 라이브러리
+
+  React는 다른 프론트엔드 기술과 함께 사용해도 잘 동작하지만, 단일 페이지 어플리케이션에 사용하는 경우가 궁합이 좋다.
+  서버 측 리액트 express-react-view(https://github.com/reactjs/express-react-views)를 사용하면 React 컴포넌트를 백엔드에서 렌더링할 수 있다.
+  서버 측 렌더링이 가능한 이유는 React를 활용해서 브라우저 외의 대상에도 렌더링할 수 있기 때문이다.
+```
+
+#### React 라이브러리와 렌더링 대상
+```
+  0.14 이후 버전부터는 기존의 React를 react와 react-dom이라는 두 패키지로 분리해서 npm에 배포하기 시작했다.
+  React를 웹 개발뿐만 아니라 UI개발이 필요한 환경이라면 어디에나 사용할 수 있는 라이브러리도 만드는 과정을 시작
+
+  before: React.render() 메서드의 경우 DOM 노드에 엘리먼트를 집어 넣음
+  after: react-dom 패키지로 이전되어 ReactDOM.render()를 사용한다.(돔 전용 렌더 메서드)
+
+  React 커뮤니티는 여러 가지 렌더링 대상에 React를 적용할 수 있는 패키지를 선보였다.
+  컴포넌트 작성과 렌더링을 분리한 것이다. 
+    - blessed(https://github.com/chjj/blessed) 터미널 인터페이스용 렌더러: http://github.com/Yomguithereal/react-blessed
+    - ART 라이브러리용 렌더러(https://github.com/sebmarkbage/art): https://github.com/reactjs/react-art
+    - <canvas> 렌더러: https://github.com/Flipboard/react-canvas
+    - 3D 라이브러리 three.js용 렌더러(http://threejs.org): https://github.com/Izzimach/react-three
+    - VR과 360도 인터페이스를 위한 렌더러: https://facebook.github.io/react-vr
+
+  react와 react-dom이 분리되면서 웹용으로 개발된 React 컴포넌트와 네이티브 모바일 애을 위해 시작한 React Native용 컴포넌트 간에 코드 공유 가능해짐
+  결과적으로 웹 개발에 React를 사용할 때는 react와 react-dom을 사용해야 한다.
+
+  여기에 React의 유틸리티 라이브러리가 추가되었다. version 15.5 이전에는 이 중 일부가 Reac의 부가 기능(add-ons)으로 제공됨
+  이런 유틸리티 라이브러리는 불변 데이터를 다루거나(https://github.com/kolodny/immutability-helper) 테스트를 수행할 떄 도움
+
+  끝으로 React는 JSX와 궁합이 좋다. JSX는 React UI 개발을 편리하게 해주는 간단한 언어다. Babel 같은 도구를 사용해서 JSX를 자바스크립트로 변환한다.
+
+  React와 관련된 많은 도구가 모듈화되어 다른 패키지로 분리됨
+  모든것을 다 갖춘 단일 프레임워크에서 정해진 방식대로 구현하는 것외에 선택의 자유 및 다른 즐거움이 생긴다.(자유는 책임질수 있을때 유용하다!!!)
+```
+
+#### 단일 페이지 애플리케이션과 React
+```
+  단일 페이지 어플리케이션(single page application SPA) 아키텍처는 서버보다는 클라이언트, 즉 브라우저 측에 로직이 더 많은 펫 클라이언트(fat client || thick client)다.
+  SPA는 HTML 렌더링, 입력값 검증, UI 변경 등의 기능을 브라우저에서 해결한다.
+
+  1. 사용자가 새로운 페이지를 열기 위해 브라우저에 URL을 입력
+  2. 브라우저가 URL 요청을 서버로 전송
+  3. 서버는 응답으로 HTML, CSS, 자바스크립트 파일 같은 정적 자원을 보낸다. 대부분 HTML은 최소한의 기본 구조만 담고 있다. 
+  4. 자바스크립트는 SPA를 위해 필요한 자원이다. 자바스크립트 로드 후 추가로 AJAX나 XHR 요청을 보내 서버에서 데이터를 불러온다.
+  5. 데이터는 JSON, XML 등의 포맷으로 전달 받는다.
+  6. SPA에 데이터가 전달되면 사용자 인터페이스를 구성하는 HTML을 렌더링한다. SPA는 템플릿에 전달받은 데이터를 밀어넣고 브라우저 상에서 UI를 렌더링한다.
+  7. 브라우저 렌더링이 끝나면 SPA는 "로딩중..." 메시지를 없애고 사용 가능한 상태가 된다.
+  8. 사용자가 웹페이지를 확인한다. 사용자는 페이지를 사용하면서 SPA를 통해 서버로 새로운 요청을 발생시키기도 하고, 앞에서 설명한 2~6단계를 거치기도 한다.
+     이 단계에서는 경우에 따라 브라우저 라우팅이 이뤄지기도 한다. SPA에서 브라우저 라우팅을 구현하면 새로운 페이지를 로딩하지 않고 브라우저에서 다시 렌더링을 수행한다.
+  cf: p54 그림 1-2 일반적인 SPA 아키텍처
+  
+  정리하면 SPA 방식은 UI 렌더링을 대부분 브라우저 상에서 해결한다. 모든 렌더링을 서버에서 해결하는 전통적인 방식과 달리 SPA에서는 데이터만 주고 받는다.
+  (여기서 말하는 렌더링이란 템플릿으로 HTML을 생성하는 과정을 의미한다. 브라우저 상의 DOM에서 이뤄지는 렌더링과는 다른 개념이라고 생각하자.)
+
+  SPA는 구현 방식으로는 MVC같은 아키텍처가 가장 인기가 좋지만, 다른 방식도 있다. React를 사용하는 데 MVC가 필수적인 것은 아니다. 그렇지만 간결하게 설명하기 위해서 MVC와 유사한 
+  아키텍처를 사용한다고 가정해보자. 내비게이터나 라우팅 라이브러리가 MVC 패러다임의 컨트롤러처럼 데이터를 가져오고 이에 알맞은 받아온 데이터와 템플릿을 이용해 만든 HTML로 UI를 렌더링한다.
+  UI는 클릭, 마우스 조작, 키 입력 같은 동작을 SPA에 전달한다.
+
+  cf: p55 그림 1-3 단일 페이지 어플리케이션의 내부
+
+  SPA 아키텍처는 브라우저에서 렌더링되므로 데이터도 브라우저에서 처리한다. 데이터를 이용해 HTML을 추가하거나 기존에 렌더링한 HTML을 변경한다. 이 덕분에 데스크롭 애플리케이션에 견줄 만큼
+  훌륭한 웹 애플리케이션을 만들 수 있다. AngularJS, Backbone, Ember처럼 SPA 개발을 위한 프론트엔드 프레임워크의 예로 볼 수 있다.
+
+  그림 1-3에서 React의 위치를 짚어보면 템플릿의 위치를 고를 수 있다. React는 뷰 계층이므로 데이터를 전달해서 HTML을 렌더링하는 목적으로 사용될 수 있다. 물론 React는 일반적인 템플릿 엔진보다는
+  더많은 일을 한다. Underscroe, Handlebars, Mustche 같은 다른 템플릿 엔진과 React는 UI를 개발하는 방법, 갱신하는 방법, 상태를 관리하는 방법에서 차이가 있다.
+```
+
+#### React 개발 스택
+```
+  React와 함께 쓰기 위한 목적으로 개발한 라이브러리를 선택해서 개발 스택을 구성하기도 한다. 
+    - 데이터 모데링과 백엔드 RefluxJS(https://github.com/reflux/refluxjs), Redux(http://redux.js.org) Meteor(https://www.meteor.com), Flux(https://github.com/facebook/flux)
+    - 라우팅: React Router(https://github.com/reactjs/react-router)
+    - React용 Bootstrap 컴포넌트: React-Bootstrap(https://react-bootstrap.github.io)
+
+  Favorit react compnents list
+    - date input component: https://github.com/Hacker0x01/react-datepicker
+    - form input validator component: https://github.com/prometheusresearch/react-forms
+    - WAI-ARIS 정의를 따르는 자동완성 컴포넌트: https://github.com/reactjs/react-autocomplete
+
+  개발 스택에는 JSX도 있다. JSX는 React를 거부하는 이유가 되기도 한다. AngularJS에 익숙한 사람이라면 템플릿 코드 안에 자바스크립트를 작성해본 적이 있을 것이다.
+  최신 웹 개발에서 단순 HTML은 너무나 정적이어서 그 자체로 사용하기가 어렵다. React와 JSX를 사용하는 것을 색안경을 끼고 보기보단 한 번쯤 공정한 입장에서 생각해 봐야 한다.
+
+  JSX는 문법이 간단한데, XML이나 HTML의 <>를 이용하여 자바스크립트로 작성하는 React 객체를 만든다. JSX가 React와 잘 어울리는 이유는 코드 구현과 가독성 면에서 더 편리하기 때문이다.
+  JSX는 자바스크립트로 변화하는 작은 언어라고 생각하면 좋다. JSX는 브라우저에서 작동하지 않지만 컴파일 과정의 소스 코드롤 활용된다. 
+  smaple:
+    if (user.session) return <a href="/logout">Logout</a>
+    else return <a href="/login">Login</a>
+
+  JSX 런타임 변환 라이브러리를 이용해서 브라우저에서 JSX를 사용하는 경우에도 결과적으로는 이를 변환한 자바스크립트를 실행하는 것이고, JSX를 실행하는 것이 아니다.
+  이런 점에서 보면 JSX는 CoffeeScript와 비슷하다. 이런 언어는 자바스크립트로 변환하여 이용하여, 자바스크립트보다 편리한 문법과 기능을 쓸 수 있다.
+
+  XML이 자바스크립트 사이에 들어가 있는 광경이 괴상하게 느껴지는 사람도 아마 있을 것이다.
+  JSX를 꼭 사용해야하는건 아니지만, 사용하다보면 궁합이 좋다.(적응하면 문법이란게 패턴이라 편하다.)
+```
+
+### 첫 번째 React 앱 만들기: Hello World
+```
+  - 우선 JSX를 사용하지 않고 만들어 보기
+
+  cf: sample code git url: https://github.com/azat-co/react-quickly
+
+  folder - structure
+    /hello-world
+      /js
+        react.js
+        react-dom.js
+      index.html
+
+  Note: React의 경고와 오류 메시지는 프로덕션 빌드에는 포함되어 있지 않다. 
+        여기에는 콘솔을 불필요한 메시지로 어지럽히지 않은려는 목적과 보안을 위한 목적,
+        파일 크기를 줄이려는 목적이 있다. React의 프로덕션 빌드는 난독화 과정을 거친 
+        react.min.js다. 또한, 난독화를 거치지 않은, 오류와 경고 메시지를 포함하고 있는
+        개발 버전은 react.js다.
+
+  React.createElement(elementName, data, child)
+    elementName: HTML 태그명을 'h1'처럼 문자열로 작성하거나 직접 만든 컴포넌트 클래스 객체를 넘겨줄 수있다.
+    data: 속성이나 상위 컴포넌트에 받는 값으로, null이나 {name: 'Azat'}와 같은 형태의 데이터다(상위컴포넌트에서 받는 값에 대해서는 나중에 살펴 보겠다.)
+    child: 자식 엘리먼트나 태그 내부에 작성하는 테스트다.
 ```

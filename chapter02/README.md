@@ -170,7 +170,7 @@
   React 속성을 작성하는 목적은 HTML 속성을 작성하는 것도 있지만, 엘리먼트의 속성을 코드에서 원하는 대로 사용하는 것도 가능하다.
     - 일반적인 HTML 요소의 속성: href, title, style, class 등
     - React 컴포넌트 클래스의 자바스크립트 코드에서 this.props의 값. 
-      예를 들어  this.pops.PROPERTY_NAME(PROPERTY_NAME를 임의의 값으로 정할수 있음)
+      예를 들어 this.pops.PROPERTY_NAME(PROPERTY_NAME를 임의의 값으로 정할수 있음)
 
   내부적으로 React는 속성 이름(PROPERTY_NAME)을 HTML 표준 속성과 대조한다.
   대조한 결과에 따라, 첫 번째 경우로, 일치하는 HTML 속성이 있으면 해당 엘리먼트의 HTML 속성으로 사용한다.
@@ -216,13 +216,141 @@
       - frameworkName: <h1>의 표준 속성이 아니지만, 제목 텍스트로 표시할 때 사용하는 값이다.
       - title: HTML 표준 속성인 title과 일치하고, React가 자동으로 렌더링한다.
 
-    cf: p76 그림 2-7: HelloWorld 컴포넌트 클래스는 HTML 표준 속성인 id와 title을 렌더링하지만 frameworkNAme은 렌더링 하지 않는다.
+    cf: p76 그림 2-7: HelloWorld 컴포넌트 클래스는 HTML 표준 속성인 id와 title을 렌더링하지만 frameworkName은 렌더링 하지 않는다.
 
+    react strucure
+      div
+        HelloWorld            HelloWorld            HelloWorld
+        id , title            id , title            id , title
+        frameworkName         frameworkName         frameworkName
+    
+    real render result
+      <div>
+        <h1 id="" title=""></h1>
+        <h1 id="" title=""></h1>
+        <h1 id="" title=""></h1>
+      </div>
+    
     React는 속성명이 표준 HTML 속성과 일치하면 <h1> 요소의 속성으로 렌더링 한다.
     id와 title은 <h1> 요소의 속성으로 렌더링하고 frameworkName은 렌더링 하지 않는다.
     frameworkName이 표준 속성이 아니므로 경고 메시지도 확인 가능하다.
 
-    <div> 엘리먼트의 구현을 자세히 살펴보자. 분명히 HelloWorld 클래스의 자식 엘리먼트 세 개를 렌더링해야 하지만, 실제 <h1>의 텍스트 속성은
-    각각 달라야 한다. 예를 들면 id, frameworkName, title을 전달하는데, 이 셋이 HelloWorld클래스의 일부가 된다.
+    <div> 엘리먼트의 구현을 자세히 살펴보자. 분명히 HelloWorld 클래스의 자식 엘리먼트 세 개를 렌더링해야 하지만, 
+    실제 <h1>의 텍스트 속성은 각각 달라야 한다. 
+    예를 들면 id, frameworkName, title을 전달하는데, 이 셋이 HelloWorld클래스의 일부가 된다.
+
+    Note: React 버전 16 부터는 HTML 표준 속성이 아닌 HTML 속성도 렌더링하도록 변경 되었다.
+    즉 비표준 속성인 frameworkName도 렌더링 된다.
+    DOM 요소에 표준이 아닌 속성을 적용하려면 소문자로만 작성해야 한다.
+    부모컴포넌트에서 작성해야 하는 속성을 실수로 작성했다면 제거하라는 친절한 경고도 확인할 수 있다.
+
+    <h1>을 구현하기 전에 HelloWorld 클래스의 속성을 전달해야 한다면?
+    <div 컨테이너 내부에 HelloWorld 엘리먼트를 생성하는 시점에 createElement()의 두 번째 인자로 객체 리터럴로 속성을 작성하여 넘겨준다.
   */
+  ReactDOM.render(                                                  
+    React.createElement(
+      'div',
+      null,
+      React.createElement(HelloWorld, {
+        id: 'ember',
+        frameworkName: 'Ember.js',
+        title: 'A framework for creating ambitious web applications'
+      }),
+      React.createElement(HelloWorld, {
+        id: 'backbone',
+        frameworkName: 'Backbone.js',
+        title: 'Backbone.js gives structure to web applications...'
+      }),
+      React.createElement(HelloWorld, {
+        id: 'angular',
+        frameworkNanme: 'Angular.js',
+        title: 'Superheroic Javascript MVW Framework'
+      })
+    ),
+    document.getElementById('content')
+  );
+  /*
+  cf: p78 그림 2-8 HelloWorld 클래스를 세 번 사용해서 속성과 innerHTML이 서로 다른 h1 요소 세 개를 만들었다.
+  div (React 엘리먼트)                div
+      HelloWorld                        h1 id title
+    id          title       ---->       h1 id title
+      frameworkName                     h1 id title
+
+          ↓ 
+
+  div (React 엘리먼트)
+      HelloWorld (React 엘리먼트)
+      id title frameworkName
+      h1 (React 엘리먼트)
+      id title frameworkName
+  'Hello' + this.props.frameworkName + 'world!!!'
+  */
+  class HelloWorld extends React.Component {
+    render() {
+      return React.createElement(
+        'h1',
+        null,
+        'Hello' + this.props.frameworkName + 'world!!!'
+      )
+    }
+  }
+  /*
+    컴포넌트 render() 메서드 내부에서 this.props 객체에 접근하면 createElement()의 두 번째 매개변수로 전달한 객체에 접근할 수 있다.
+    예를 들면 {id: 'ember'...}와 같은 객체다.
+    this.props 객체의 키는 createElement()의 두 번째 매개변수로 전달한 객체의 키와 같다. this.props의 키로 id, frameworkName, title를 확인 가능하다.
+    React.createElement()의 두 번째 인자로 전달하는 키-값 쌍의 수는 제한이 없다.
+
+    HelloWorld 컴포넌트의 모든 속성을 자식 엘리먼트인 <h1>에 넘겨주는 것도 가능하다. 컴포넌트에 어떤 속성이 전달되는지 확실하지 않을 때 매우 유용한 방법이다.
+    예를 들면 HelloWorld 컴포넌트로 인스턴스를 생성하는 개발자가 스타일 속성을 직접 입력할 수 있도록 해야 하는 경우가 있다.
+    따라서 <h1></h1>에 렌더링할 HTML 속성에 제한을 두지 않는다.
+  */
+  // HelloWorld 컴포넌트의 모든 속성을 <h1></h1>으로 전달하는 경우
+  class HelloWorld extends React.Component {
+      render() {
+        return React.createElement(
+          'h1',
+          this.props,
+          'Hello' + this.props.frameworkName + 'world!!!'
+        )
+      }
+  }
+  // 엘리먼트 생성 시 속성 전달
+  class HelloWorld extends React.Component {
+    render() {
+      return React.createElement(
+        'h1',
+        this.props,
+        'Hello' + this.props.frameworkName + 'world!!!'
+      )
+    }
+    ReactDOM.render(
+      'div',
+      null,
+      React.createElement(HelloWorld, {
+        id: 'ember',
+        frameworkName: 'Ember.js',
+        title: 'A framework for creating ambitios web application' 
+      }),
+      React.createElement(HelloWorld, {
+        id: 'backbone',
+        frameworkName: 'Backbone.js',
+        title: 'Backbone.js gives structure to web application...'
+      }),
+      React.createElement(HelloWorld, {
+        id: 'angular',
+        frameworkName: 'Angular.js',
+        title: 'Superheroic Javascript MVW Framework'
+      })
+      document.getElementById('content')
+    )
+  }
+```
+
+### 요약
+```
+  - React 엘리먼트를 중첩하여 자식 엘리먼트로 추가하려면 createElement()의 세 번쨰 인자로 계속해서 전달하면 된다.
+  - React 엘리먼트를 생성할 때 사용자 저으이 컴포넌트를 클래스를 사용한다.
+  - 속성을 사용하여 React 엘리먼트의 렌더링 결과를 바꾼다.
+  - 부모 컴포넌트는 자식 엘리먼트에 속성을 전달할 수도 있다.
+  - React 컴포넌트를 통해 컴포넌트 기반 아키텍처를 구현할 수 있다.
 ```

@@ -154,4 +154,169 @@
   반드시 super()에 속성을 전달하여 실행해야 한다. 
   그렇지 않으면 부모 클래스(React.Component)의 기능을 정상적으로 사용할 수 없다.
   */
+  class MyFancyComponent extends React.Component {
+    construtor(props) {
+      super(props)
+      this.state = {...}
+    }
+    render() {
+      ...
+    }
+  }
+  /*
+  초기 상태를 설정하면서 다른 로직도 추가할 수 있다. 예를 들어 new Date()를 사용하여 currentTime 값을 설정한다고 하자.
+  toLocaleString()을 사용하면 다음과 같이 사용자의 우치에 맞는 적절한 날짜시간 형식을 보여줄 수 있다.
+  */
+  // 시계 컴포넌트 클래스의 생성자
+  class Clock extends React.Component {
+    constructor(props) {
+      super(props)
+      this.state = {currentTime: (new Date()).toLocaleString('en')}
+    }
+    ...
+  }
+  /*
+  this.state의 값은 반드시 객체여야 한다. 여기서는 ES6 constructor()에 대해서는
+  cf: 부록 E와 ES6 치트시트(https://github.om/azat-co/heatsheets/tree/master/es6)
+  요점은 객체지향 프로그래밍 언어에서 클래스의 인스턴스가 생성될 때 constructor()가 호출 된다는 것이다.
+  생성자 메서드의 이름은 반드시 constructor로 한다.
+  ES6의 규칙이라고 생각하자. 또한 부모 클래스가 있는 클래스에서 constructor() 메서드를 생성하면 그 안에서
+  거의 항상 super()를 호출한다. 그렇지 않으면 부모 클래스의 생성자가 실행되지 않는다.
+  만약 이렇게 상속으로 클래스를 구현하는 경우에 constructor() 메서드를 따로 작성하지 않으면 super()를 호출한 것으로 가정한다.
+
+  Note: 클래스 속성
+    기술 위원회 39(Technial Commiteee 39, TC39: ECMAScript 표준을 제정하는 위원회)에서 
+    추후 버전 ECMAScript의 클래스 문법에 클래스 속성을 추가해 주면 좋겠다.
+    클래스 속성 기능이 지원되면 state를 constructor에서 선언하지 않고, 클래스 몸체에 선언할 수 있다.
+
+    class Clock extends React.Component {
+      state = {
+        ...
+      }
+    }
+
+    클래스 필드/속성/프로퍼티에 대한 제안은 https://github.com/jeffmo/es-class-fiedls-and-static-properties에 있다.
+    제안이 이뤄지고 몇 년이 지났지만, 이 책을 집필하는 2017년 3월 현재 아직 Stage 2에 머무르고 있다.(Stage 0부터 시작하며 Stage 4가 최종적으로 표준 단계다.)
+    그렇기 때문에 브라우저에서는 아직 사용할 수 없다. 이 기능은 기본적으로 작동하지 않는다.(이 책을 쓰는 현재 클래스 필드를 지원하는 브라우저가 없다.)
+
+    브라우저에서 코드를 작동시키려면 Babel, Traceur 같은 트랜스파일러나 TypeScript 등을 이용해야 한다. 
+    클래스 프로퍼티에 대한 ECMAScript 호환성 표(http://kangax.github.io/compat-table/esnext)를 참고하거나 필요하다면 ES.Next Babel preset을 사용하길 바란다.
+
+    여기서 정한 currentTime은 임의의 이름이다. 나중에 상태에 접근하고 갱신하려면 같은 이름을 사용해야 한다. 
+    필요할 때 사용할 수만 있다면, 상태의 이름은 마음대로 정할 수 있다.
+  */
+  // 상태 객체는 배열이나 다른 객체를 중첩해서 가질 수 있다. 다음 예제에서는 책을 상태 객체에 배열로 담았다.
+  class Content extends React.Component {
+    constructor(props) {
+      super(props)
+      this.state = {
+        githubName: 'azat-co',
+        books: [
+          'pro express.js',
+          'pratical node.js',
+          'rapid prototyping with js'
+        ]
+      }
+    }
+    render() {
+      ...
+    }
+  }
+  /*
+  constructor() 메서드는 앞의 컴포넌트 클래스에서 React 엘리먼트가 생성되는 시점에 한 번만 호출된다.
+  이렇게 해서 constructor() 메서드 내에서 한 번만 this.state로 직접 상태를 선언할 수 있다.
+  이 외의 부분에서는 this.state = ...으로 직접 상태를 선언하지 않도록 해야 한다.
+  만약 직접 선언하면 의도하지 않은 결과를 낳을 수 있다.
+
+  Note: React에서 컴포넌트를 생성하기 위해 사용하는 createClass() 메서드에서는 초기 상태 설정에 getInitialState()를 사용한다.
+  createClass()에 대한 자세한 정보와 ES5로 작성한 예제는 2.2절의 노트 "ES6+/ES2015+와 React"를 살펴보기 바란다.
+
+  이렇게 하면 첫 번째 값을 입력해서 보여줄 뿐, 곧 시간이 지나버릴 것이다. 1초만에 말이다.
+  다행히도 React는 상태를 갱신하는 방법이 있다.
+  */
+```
+
+#### 상태 갱신하기
+```javascript
+  /*
+  클래스 메서드인 this.setState(data, callback)를 사용하면 상태를 변경할 수 있다.
+  이 메서드를 실행하면 React는 전달하는 data를 현재 상태에 병합하고 render()를 호출한다.
+  이후에 React가 callback 함수를 실행한다.
+
+  setState()에 콜백함수를 사용할 수 있다는 점은 중요하다. setState()가 비동기로 작동하기 때문이다.
+  새로운 상태에 의존하는 경우, 콜백함수를 사용해야 새로운 상태가 적용된 후에 필요한 작업을 수행할 수 있다.
+
+  setState()가 완료되길 기다리지 않고 새로운 상태에 의존하는 작업을 수행하는 것은 비동기(asynchronous) 작업을 동기(synchronous)처럼 다루는 것이다.
+  이 경우 갱신될 새로운 상태 값에 의존하는 코드를 작성하면 버그가 생길 수 있는데, 상태 객체가 이전 값을 가진 이전의 상태 객체로 남아있기 때문이다.
+
+  지금까지는 시간을 상태에서 렌더링 했다. 초기 상태를 설정했지만, 시간을 매 초마다 갱신해야 한다.
+  브라우저의 타이머 함수인 setInterval()(http://mng.bz/P2d6)을 사용하면 그렇게 할 수 있다.
+  매 n 밀리초(1000분의 1초)마다 상태를 갱신할 수 있다. setInterval() 메서드는 최신 브라우저에서 전역에 구현되어 있으며, 라이브러리나 접두사 없이 사용할 수 있다.
+  */
+  setInterval(() => {
+    console.log('Updating time...')
+    this.setState({
+      currentTime: (new Date()).toLocaleString('en')
+    })
+  }, 1000)
+
+  /*
+  시계를 시작하려면 setInterval()을 한 번 호출해야 한다. setInterval()을 호출하는 launchClock() 메서드를 생성하자.
+  생성자에서 launchClock()를 호출한다. 다음 예제 코드는 완성된 Clock 컴포넌트다.
+  */
+  // 상태를 이용한 Clock 컴포넌트 구현
+  class Clock extends React.Component {
+    constructor(props) {
+      super(props)
+      this.launchClock()
+      this.state = {
+        currentTime: (new Date()).toLocaleString('en')
+      }
+    }
+    launhClock() {
+      setInterval(() => {
+        console.log('Updating time...')
+        this.setState({
+          currentTime: (newDate()).toLocaleString('en')
+        })
+      }, 1000)
+    }
+    render() {
+      console.log('Rendering Clock...')
+      return <div>{this.state.currentTime}</div>
+    }
+  }
+
+  /*
+  예제 코드에서는 setState()를 생성자가 실행하는 launchClock()에서만 사용했지만, 실제로는 다른 곳에서도 사용할 수 있다.
+  일반적으로 setState()는 이벤트 핸들러나 데이터 수신 또는 갱신을 처리하는 콜백함수에서 호출된다.
+
+  Tip: this.state.name = 'new name' 같은 방식으로 상태를 변경하는 것은 아무 효과가 없다. 
+  이렇게 하면 렌더링을 다시 하지도 않고, 실제 DOM을 갱신할 수도 없다. 대부분의 경우에 setState()를 거치지 않고
+  직접 상태 객체를 변경하는 것은 안티패턴이므로 피해야 한다.
+
+  setState()로 전달하는 상태는 상태 객체의 일부분만 갱신한다는 것을 알고 있어야 한다.(일부분만 수정하거나 병합하고 완벽하게 교체하지는 않는다.)
+  매번 상태 객체를 완전히 바꾸지 않는다. 따라서 상태 객체에서 세 항목이 있을 때 하나를 변경한다면, 나머지 둘은 그대로 유지되어 바뀌지 않는다.
+  다음 예제 코드에서 userEmail과 userId는 그대로 유지된다.
+  */
+  constructor(props) {
+    super(props)
+    this.state = {
+      userName: 'Azat Nardan',
+      userEmail: 'hi@azat.co',
+      userId: 3967
+    }
+  }
+  updateValues() {
+    this.setState({userName: 'Azat'})
+  }
+
+  /*
+  만약 상태 세 가지를 모두 갱신하고 싶다면 setState()에 이 상태에 대한 새로운 값을 명시적으로 전달해야 한다.
+  (this.replaceState() 메서드를 사용하는 코드를 오래된 React 코드에서 여전히 찾아볼 수도 있겠지만, 
+  이 방법은 더 이상 작동하지 않고 지원도 종료됨. 이름에서 알 수 있듯이 이 메서드는 상태 객체에 있는 모든 키-값 쌍을 교체하는 데 사용됨)
+  
+  setState()가 render()를 실행시킨다는 점도 기억해야 한다. 대부분의 경우를 이 방식으로 처리한다.
+  코드가
+  */
 ```

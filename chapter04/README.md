@@ -317,6 +317,249 @@
   이 방법은 더 이상 작동하지 않고 지원도 종료됨. 이름에서 알 수 있듯이 이 메서드는 상태 객체에 있는 모든 키-값 쌍을 교체하는 데 사용됨)
   
   setState()가 render()를 실행시킨다는 점도 기억해야 한다. 대부분의 경우를 이 방식으로 처리한다.
-  코드가
+  코드가 외부 데이터에 의존하는 매우 특이한 경우, 다시 렌더링하기 위해 this.forceUpdate()를 호출할 수 있다.
+  그렇지만 이 방법은 상태가 아닌 외부 데이터에 의존하여 컴포넌트를 불안정 하게 만들고, 외부 요소와 강하게 결합되어 좋지 않으므로 피해야 한다.
+
+  앞서 언급한 것처럼, this.state를 통해 상태 객체에 접근할 수 있다. 기억하고 있겠지만 JSX에서 값을 출력할 때는 중괄호({})를 사용한다.
+  그러므로 뷰에서 상태를 노출하려면 render()의 return 문에서 {this.state.NAME}을 사용한다.
+
+  React가 부리는 마술은 뷰에 상태 데이터를 사용하고 setState()로 새로운 값을 전달할 때 등장한다.
+  (예를 들어 if/else 문에서 출력하거나 HTML 속성 값 또는 자식 엘리먼트의 속성 값을 사용할 때다.) 리액트는 필요한 HTML만 갱신한다.
+  개발자 도구의 콘솔에서 이것을 확인할 수 있다.
+  "Updating..."(갱신중). "Rendering..."(렌더링 중) 같은 갱신 주기를 확인할 수 있을 것이다.
+  리액트의 최고 장점은 필요한 최소한의 DOM 요소에만 정확하게 영향을 준다는 점이다.
+
+  Note: 자바스크립트의 this 바인딩
+        자바스크립트에서 this는 함수가 호출된 곳에 따라 다르다. this가 컴포넌트 클래스를 참조하도록 하려면 적절한 컨텍스트에 함수를 바인딩해야 한다.
+        (this 값이 컴포넌트 클래스가 되도록 한다.)
+
+        ES6+/ES2015+를 사용한다면 내가 이 책에서 하는 것처럼 화살표 함수를 사용해서 자동으로 바인딩된 함수를 생성 할 수 있다.
+
+        setInterval(() => {
+          this.setState({
+            currentTime: (new Date()).toLocaleString('en')
+          })
+        }, 1000)
+
+        자동 바인딩은 화살표 함수로 생성된 함수가 현재 this 값을 갖게 됨을 의미하며, 이 경우에는 Clock 컴포넌트가 된다.
+        수동으로 하는 방법은 클로저에서 bind(this) 메서드를 사용하는 것이다.
+          function(){...}.bind(this)
+        
+        Clock 컴포넌트에서 한다면 다음과 같다.
+          setInterval(function(){
+            this.setState({
+              currentTime: (new Date()).toLocaleString('en')
+            })
+          }.bind(this), 1000)
+
+        이 방법은 React에만 사용할 수 있는 것은 아니다. 함수의 클로저에서 this 키워드가 변경되므로 일종의 바인딩이 필요하다.
+        컨텍스트(this) 값을 저장해 놓았다가 다음에 다시 사용하는 방법도 있다.
+
+        일반적으로 self.that._this 같은 변수를 원래의 this를 담아 두는 목적으로 사용한다. 
+        다음과 같이 작성한 코드를 본 적이 있을 것이다.
+          var that = this
+          var _this = this
+          var self = this
+        
+        매우 단순한 방법이다. 변수에 담아 두었다가 클로저에 this를 참조하는 대신 이 값을 사용하는 것이다. 
+        새로운 변수는 원래의 this 값을 복사한 것이 아니라 참조다. 
+        이 방법으로 setInterval()을 작성하면 다음과 같다.
+          var _this = this
+          setInterval(function() {
+            _this.setState({
+              currentTime: (new Date()).toLocaleString('en')
+            })
+          }, 1000)
+        
+        리액트가 동일한 DOM인 <div> 요소는 재사용하고, 내부의 텍스트만 변경하는 것을 이해할 수 있을 것이다.
+        개발자도구에서 인라인 스타일로 CSS에서 색상을 입히면 <div>요소를 재사용하는 것을 확인 가능하다.
+        즉 재사용성의 극대화를 확인할 수 있다.
   */
+```
+
+### 상태 객체와 속성
+```
+  상태 객체와 속성은 모두 클래스의 멤버이며, 각각 this.state와 this.props를 말한다. 
+  이것이 유일한 공톰점이다.
+  상태 객체와 속성의 주요한 차이점 중 하나는 상태 객체는 변경 가능한 반면,
+  속성은 변경이 불가능하다는 점이다.
+
+  또 다른 차이점은 속성은 부모 컴포넌트에 전달하지만, 상태는 부모 컴포넌트가 아닌 해당 컴포넌트 자체에 정의 한다는 점이다.
+  이는 속성 값을 변경하는 것은 오직 부모 컴포넌트에서만 가능하고, 자체적으로 변경할 수 없다는 원리다.
+  그러므로 속성은 뷰 생성 시에 정해지고, 정적인 상태로 유지된다.
+  (변경되지 않는다.) 
+  반면에 상태는 해당 컴포넌트에서 설정되고 갱신된다.
+
+  속성과 상태는 각자 다른 목적으로 사용되지만 둘 다 컴포넌트 클래스에서 접근이 가능하고, 
+  다른 표현(뷰)으로 여러 컴포넌트를 구성할 수 있도록 도와준다.
+  컴포넌트 라이프 싸이클과 관련해서는 차이점이 있다.
+  함수가 다른 출력을 생성하도록 하기 위해 속성과 상태를 입력한다고 가정하자.
+  여기서 출력은 뷰다.
+  서로 다른 속성과 상태 집합에 따라 서로 다른 UI(뷰)를 가질 수 있다.
+
+  모든 컴포넌트가 상태를 가져야 하는 것은 아니다.
+  상태비저장 컴포넌트를 속성과 함께 사용하는 방법을 알아보자.
+  cf: p134 그림 4-6 속성과 상태에 새로운 값을 넣어 UI를 변경할 수 있다. 새로운 속성 값은 부모로부터 전달되고, 새로운 상태 값은 컴포넌트 자체적으로 변경한다.
+  A 컴포넌트(부모)                      B 컴포넌트                                        뷰: render()
+                        ->                                          ->
+                    속성(props)                                 this.props
+                                      state(상태는 변경 가능)
+                                      componentB.setState           ->
+                                      (data)                    this.state
+```
+
+### 상태비저장 컴포넌트
+```javascript
+  /*
+  상태비저장 컴포넌트(stateless component)는 상태 객체가 없으며, 컴포넌트 메서드 또는 다른 리액트의 라이프 싸이클 이벤트 또는 메서드를 갖지 않게 작성한다.
+  상태비저장 컴포넌트의 목적은 오직 뷰를렌더링 하는 것이다. 이 컴포넌트가 할 수 있는 것은 속성을 전달받아 처리하는 것 뿐이다. 
+  상태비저장 컴포넌트는 속성을 입력받아 UI 엘리먼트를 출력하는 간단한 함수다.
+
+  상태비저장 컴포넌트는 예측할 수 있다는 이점이 있는데, 출력을 결정하는 입력이 한 가지뿐이기 때문이다.
+  예측가능성은 곧 이해가 쉽고, 유지보수와 디버깅이 편리하다는 것을 의미한다. 실제로 상태를 가지지 않는 것이 리액트의 가장 바람직한 사례라고 볼 수 있다.
+  상태비저장 컴포넌트는 더 많이 사용할수록, 상태저장 컴포넌트는 더 적게 사용할수록 더 좋다.
+  */
+  // 상태비저장 HelloWorld
+  class HelloWorold extends React.Component {
+    render() {
+      return <h1 {...this.props}>Hello {this.props.frameworkName} world!!!</h1>
+    }
+  }
+
+  /*
+    리액트는 함수형 스타일을 사용하여 상태비저장 컴포넌트를 위한 더 간결한 문법을 제공한다.
+    즉, 인자로 속성을 전달받아 뷰를 반환하는 함수를 생성할 수 있다.
+    상태비저장 컴포넌트는 다른 컴포넌트와 똑같이 렌더링 된다.
+    예를들어 HelloWorld 컴포넌트는 <h1>을 반환하는 함수로 다시 쓸 수 있다.
+  */
+  const HelloWorld = function(props) {
+    return <h1 {...props}>Hello {props.frameworkName} world!!!</h1>
+  }
+
+  
+  //  ES6+/ES2015+의 화살표 함수를 사용하여 상태비저장 컴포넌트를 작성할 수 있다. 다음 예제 코드는 앞의 예제 코드와 동일하다(return 키워드도 제거할 수 있다.)
+  const HelloWorld = (props) => {
+    return <h1 {...props}>Hello {props.frameworkName} world!!!</h1>
+  }
+
+  // 이처럼 상태가 필요하지 않다면 React 컴포넌트를 함수로 선언할 수 있다. 다시 말해 상태비저장 컴포넌트를 생성하려면 함수로 선언하라.
+  function Link(props) {
+    return <a href={props.href} target="_blank" className="btn btn-primary">{props.text}</a>
+  }
+  ReactDOM.render(
+    <Link text='Buy React Quickly' href='https://www.manning.com/books/react-quickly' />,
+    document.getElementById('content')
+  )
+
+  // 자동 바인딩을 할 필요는 없지만, 화살표 함수를 사용해 코드를 짧게 작성할 수 있다.(한 문장일 경우에는 한줄로 표기 가능하다.)
+  const Link = props => <a href={props.href}
+    target="_blank"
+    className="btn btn-primary">
+    {props.text}
+  </a>
+
+  // 또는 화살표 함수를 중괄호({})와 함께 사용해서 명시적으로 return을 작성하고, 괄호를 추가하면 좀 더 읽기 쉬워진다.
+  const Link = (props) => {
+    return (
+      <a href={props.href}
+        target="_blank"
+        className="btn btn-primary"
+      >
+        {props.text}
+      </a>
+    )
+  }
+
+  /*
+    상태비저장 컴포넌트는 상태를 가질 수 없다. 그렇지만 propTypes와 defaultProps를 프로퍼티로 가질 수 있다.
+    이 둘을 컴포넌트 객체에 추가할 수 있다.
+    한편 엘리먼트를 return과 같은 라인에서 시작하면 return 뒤에 여는 괄호를 넣지 않아도 된다.
+  */
+  function Link(props) {
+    return <a href={props.href}
+      target="_blank"
+      className="btn btn-primary"
+    >
+      {props.text}
+    </a>
+  }
+  Link.propTypes = {...}
+  Link.defaultProps = {...}
+  // 또한, 상태비저장 컴포넌트(함수)에서는 엘리먼트 참조(refs)를 사용할 수 없다. refs를 사용하려면 상태비저장 컴포넌트를 일반적인 React 컴포넌트로 감싸야 한다.
+```
+
+### 상태비저장 컴포넌트와 상태저장 컴포넌트의 비교
+```javascript
+  /*
+  상태비저장 컴포넌트를 사용하는 이유는 무엇일까? HTML 렌더링을 처리하는 것으로 충분한 경우,
+    - 인스턴스 생성x
+    - 라이프싸이클 메서드 사용 x
+    - 선언적이고 잘 작동
+    - 중복 감소
+    - 더나은 문법으로 인한 가독성 향상
+  
+  React팀의 권장사항으로는 class 컴포넌트를 다 사용하는 것보단 비상태저장 컴포넌트의 경우 함수형을 사용 하는것을 권장한다.
+
+  상태비저장 컴포넌트가 반드시 정적인 것은 아니다.
+  다른 속성을 전달하면 동적으로 UI가 변경 가능하다.
+
+  Clock 컴포넌트를 세 컴포넌트로 분리하여 개선해보자
+    - 상태저장 컴포넌트: 갱신할 상태와 로직을 가진 Clock 컴포넌트
+    - 비상태저장 컴포넌트: DigitalDsplay와 AnalogDisplay
+
+  project structure
+    /clock-analog-digital
+      /jsx
+        analog-display.jsx
+        clock.jsx
+        digital-display.jsx
+        script.jsx
+      /js
+        analog-display.js
+        clock.js
+        digital-display.js
+        script.js
+        react.js
+        react-dom.js
+      index.html
+  */
+  // Clock 컴포넌트 자식 엘리먼트에 상태 전달하기
+  ...
+  render() {
+    console.log("Rendering Clock...");
+    return <div>
+      <AnalogDisplay time={this.state.currentTime}></AnalogDisplay>
+      <DigitalDisplay time={this.state.currentTime}></DigitalDisplay>
+    </div>;
+  }
+
+  // DigitalDisplay create(상태비저장)
+  const DigitalDisplay = (props) => <div>{props.time}</div>
+
+  /*
+  AnalogDisplay도 상태비저장 컴포넌트를 구현한 함수다.
+  그렇지만 내부에 시침을 조작하기 위한 애니메이션이 포함되어 있다.
+  이 애니메이션은 time 속성에 의해 작동하며, 다른 상태에 의존하고 있지 않다.
+  시간을 문자열로 전달받은 후 Date 객체로 변환하여 시, 분, 초를 가져온 다음,
+  그 값을 각도로 변경한다.
+  */
+  // 다음 예제 코드는 초를 각도로 변환하는 방버이다.
+  let date = new Date('1/9/2007, 9:46:15 AM')
+  cocnsole.log((data.getSeconds() / 60) * 360)
+  /*
+    각도를 계산한 후에는 객체 리터럴로 작성된 CSS에 사용할 수 있다.
+    React와 CSS의 차이점은 스타일 속성을 카멜 표기법으로 작성한다는 점이다.
+    반면에 CSS에서 원래 사용하는 대시 기호(-)를 사용하면 자바스크립트에서는 유효하지 않다.
+    앞에서 언급한 거서럼 스타일 객체를 사용하는 것이 React가 이전 엘리먼트와 새로운 엘리먼트의 차이점을 더 빨리 결정하도록 해준다.
+  */
+  // analog-display(상태비저장)
+  const AnalogDisplay = (props) => {
+    let date = new Date(props.time)
+    let dialStyle = {
+      position: 'relative',
+      top: 0,
+      left: 0,
+      width: 200
+    }
+  }
 ```

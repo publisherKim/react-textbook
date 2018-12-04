@@ -1,0 +1,1 @@
+const DigitalDisplay = (props) => <div>{props.time}</div>

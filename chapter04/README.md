@@ -118,5 +118,40 @@
         clock.js
         react.js
         react-dom.js
+  
+  Babel CLI에 -w와 -d 옵션을 주어, 모든 JSX 파일을 컴파일한 후 산출물 폴더인 clock/js에 저장하고, 
+  파일을 수정할 때마다 다시 컴파일하도록 했다. 
+  또한, 상위 폴더인 ch04에 있는 pacakge.json 파일의 scripts 항목에 이 명령을 추가하여 ch04 폴더에서 
+  npm run build-clock으로 실행할 수 있다.
+
+  시간은 계속 변화하기 때문에 뷰를 갱신해야 한다.
+  뷰를 갱신하기 위해 상태를 사용할 수 있다.
+  */
+  // 상태에 currentTime이란 이름을 주고, 다음 예제 코드 처럼 이 상태를 렌더링해보자.
+  class Clock extends React.Component {
+    render() {
+      return <div>{this.state.currentTime}</div>
+    }
+  }
+
+  ReactDOM.render(
+    <Clock/>,
+    document.getElementById('content')
+  )
+  /*
+  이렇게 하면 Uncaught Type Error: Cannot read property 'currentTime' of null 이라는 오류 메시지가 발생한다.
+  속성과 달리 상태 객체는 부모 컴포넌트에서 설정하는 것이 아니다.
+  그렇다고 해서 상태를 설정하기 위해 render() 메서드 안에서 setState를 실행 할 수는 없다.
+  setState -> render -> setState...로 끊임없이 반복되므로 React가 오류를 발생시킨다.
+  */
+```
+
+#### 초기 상태 설정하기
+```javascript
+  /*
+  render()에서 상태 데이터를 사용하려면 먼저 상태를 초기화해야 한다.
+  초기 상태를 설정하려면 React.Component를 사용하는 ES6 클래스의 생성자(constructor)에서 this.state를 선언한다.
+  반드시 super()에 속성을 전달하여 실행해야 한다. 
+  그렇지 않으면 부모 클래스(React.Component)의 기능을 정상적으로 사용할 수 없다.
   */
 ```

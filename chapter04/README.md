@@ -606,4 +606,77 @@
       </div>
     </div>
   }
+  /*
+    크롬 개발자도구 React 탭을 확인하면 Props와 state 값을 확인할 수 있다.
+    Note: 자바스크립트의 함수 선언문에 대하여
+          자바스크립트에서 함수를 선언하는 방법은 여러 가지다. 콜백함수처럼 바로 사용하는 함수는 익명함수로
+          작성할 수 있다.
+            function() { return 'howdy' }
+          
+          즉시실행함수(IIFE)를 작성할 수도 있다.
+            (funtion() {
+              return ('howdy')
+            })()
+
+          익명 함수 표현식을 참조하는 변수를 생성하면 다음과 같다.
+            let sayHelloMadarin = function() { return 'ni hao' }
+          
+          다음은 호이스팅되는 기명 함수 표현식이다.
+            function sayHelloInTatar() { return 'salam' }
+
+          호이스팅되는 기명 함수 표현식을 참조하는 변수를 생성하면 다음과 같다.
+            let sayHelloInSpanish = function digHolaEnEspanol() { return 'hola' }
+
+          마지막으로 즉시 실행되는 기명 함수 표현식을 작성하면 다음과 같다.
+            (function sayHelloTexan{
+              return ('howdy')
+            })()
+
+          호이스팅되는 기명 함수의 경우에는 화살표 함수를 사용하지 않는다.
+
+    살펴본 것처럼 AnalogDisplay와 DigitalDisplay 컴포넌트는 상태를 저장하지 않는다.
+    즉, 상태 객체가 없다. 함수 몸체를 제외하고는 메서드를 가지고 있지 않아서 일반적인 React 클래스 정의의
+    render()와 다른 모습이다. 애플리케이션의 모든 로직과 상태는 Clock의 컴포넌트에 있다.
+
+    반면에 상태비저장 컴포넌트에 담은 유일한 로직은 애니메이션이지만, 애니메이션은 AnalogDisplay에만 관련되어 있다. 확실히 Clok 컴포넌트에서 아날로그 형식을 위한 애니메이션을 처리했다면 나쁜 설계가 되었을 것이다.(관심사 분리는 매우 중요하다.) 이제 Clock 컴포넌트에서 두 컴포넌트를 필요에 따라 모두 렌더링하거나
+    하나만 렌더링 할 수도 있다. 상태비저장 컴포넌트를 여러 개의 상태저장 컴포넌트와 적절히 사용하면 좀 더 유연하고, 간단하며, 더 나은 설계를 할 수 있다.(설계 튼튼 매사 안전)
+
+    보통 React를 다루는 개발자가 상태비저장 컴포넌트를 이야기하면 함수나 화살표 함수 문법으로 작성한 컴포넌트를 의미한다. 다른 사람이나 혹은 컴포넌트를 직접 작성한 사람이라도 반 년쯤 뒤에 상태를 
+    추가해버릴 수도 있기 때문이다. 이런 유혹을 없애고, 코드를 복잡하게 만드는 것을 미리 방지하자!
+    (핵심이다. Simple is Best!!, KISS 원칙(Keep It Simple Stoopid))
+
+    상태비저장 컴포넌트에 메서드를 둘 수 있는지 궁금할 것이다. 확실히 클래스를 사용할 때는 메서드를 사용할 수 있다.
+    그러나 대부분의 개발자가 함수를 사용한다. 함수도 자바스크립트 객체이므로 메서드를 추가할 수도 있지만,
+    그렇게 하면 코드가 아름답지 않다.
+    함수에서 this를 사용할 수 없기 때문이다.(this 값이 컴포넌트가 아닌 window 객체를 가리킨다.)
+
+    안티패턴: 이런방식은 피하자.
+    const Digitalplay = function(props) {
+      return <div>{DigitalDisplay.locale(props.time)}</div>
+    }
+    DigitalDisplay.locale = (time) => {
+      return (new Date(time)).toLocaleString('Eu')
+    }
+
+    뷰와 관련된 로직을 처리하려면, 상태비저장 컴포넌트의 내부에 새로운 함수를 생성한다.
+    const DigitalDisplay = (props) => {
+      const locale = time => (new Date(time)).toLocaleString('EU')
+      return <div>{locale(props.time)}</div>
+    }
+
+    상태비저장 컴포넌트는 단순하게 유지해야 한다. 상태 객체나 메서드를 추가하지 말자.
+    특히 외부 메서드나 함수를 호출하지 않도록 주의하자.
+    이런 방법이 예측가능성을 깨드리기 때문이다.(그리고 순수성에도 위배된다.)
+  */
+```
+
+### 요약
+```
+  - 상태 객체는 변경할 수 있다. 속성은 변경할 수 없다.
+  - 컴포넌트 클래스의 생성자에 this.state = ...를 사용하거나, createClass()를 사용하는 경우
+    getInitalState를 호출하여 컴포넌트의 초기 상태 객체를 설정 할 수 있다.
+  - this.setState는 상태 객체 전체가 아니라 전달한 항목만 갱신한다.(리액트 우왕짱)
+  - {}는 JSX 코드에서 변수를 출력하고 자바스크립트를 실행할 때 사용한다.
+  - 상태 객체는 this.state.NAME으로 접근한다.
+  - 상태비저장 컴포넌트는 React를 다룰 때 선호되는 방식이다.
 ```

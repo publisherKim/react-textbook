@@ -19,7 +19,8 @@ class Clock extends React.Component {
     return React.createElement(
       "div",
       null,
-      this.state.currentTime
+      React.createElement(AnalogDisplay, { time: this.state.currentTime }),
+      React.createElement(DigitalDisplay, { time: this.state.currentTime })
     );
   }
 }

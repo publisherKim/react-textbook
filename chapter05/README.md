@@ -311,3 +311,155 @@
   다시 말해 componentWill mount()에서 setState()를 실행할 수 있다.
   render()는 새로운 상태를 가져와서 렌더링하므로 상태 변경에 따른 추가적인 렌더링을 하지 않는다.
 ```
+
+### componentDidMount()
+```jsx
+  /*
+  componentDidMount()는 초기 렌더링을 마친 후에 실행된다.
+  componentDidMount()는 브라우저에서만 한 번 실행되고, 서버 렌더링에서는 실행되지 않는다.
+  XHR 요청처럼 브라우저에서만 실행해야 하는 코드를 구현할 때 편리하게 사용할 수 있다.
+
+  componentDidMount()에서 자식 엘리먼트를 참조로 접근할 수 있다.
+  (예를 들면 엘리먼트에 해당하는 DOM 표현에 접근할 수 있다.)
+  자식 컴포넌트의 componentDidMount() 메서드는 부모 컴포넌트의 componentDidMount()보다 먼저 호출된다.
+
+  componentDidMount() 이벤트는 다른 자바스크립트 라이브러리를 통합하기에 가장 적절한 위치다.
+  예를 들면 먼저 사용자 정보 목록이 실린 JSON 데이터를 가져올 수 있다.
+  그 후에 사용자 정보를 Twiter Bootstrap의 table을 이용해서 p160 5-5처럼 표를 그릴 수 있다.
+
+  project structure
+    /users
+      /css
+        bootstrap.css
+      /js
+        react.js
+        react-dom.js
+        script.js
+        - users.js
+      /jsx
+        script.jsx
+        users.jsx
+      index.html
+      real-user-data.json
+  
+  componentDidMount()에서 DOM 요소에 접근할 수 있고, 
+  새로운 fetch() API를 이용해서 XHR/AJAX 요청을 보내 데이터를 가져올 수 있다.
+  fetch(this.props['data-url'])
+    .then(res => res.json())
+    .then(users => this.setState({users: users}))
+
+  Note: Fetch API
+        Fetch API(http://mng.bz/mbMe)는 promise를 이용해 XHR 요청을 보낼 수 있는 통일된 방식이다.
+        대부분의 최신 브라우저에서 사용할 수 있지만, 
+        API 명세(https://fetch.spec.whatwg.org)와
+        표준(https://github.com/whatwg/fetch)을 살펴보고, 
+        구현하려는 앱의 지운대상 브라우저에서 사용이 가능한지 확인후 사용
+        사용법: URL을 전달하고, 필요에 따라 promise에 then을 원하는 대로 추가 가능하다.
+          fetch('http://node.university/api/credit_cards/')
+            .then(res => {
+              return res.blob()
+            })
+            .then(blob => {
+              // Process blob
+            })
+            .catch(err => {
+              console.log('A problem with your fetch operation: ' + error.message)
+            })
+
+        만약 지원대상 브라우저가 fetch()를 지원하지 않는다면 폴리필을 사용하거나, 다른 HTTP 에이전트 라이브러인
+        superagent(https://github.com/visionmedia/superagent),
+        request(https://github.com/request/request),
+        axios(https://github.com/mazbriskie/axios) 등을 이용하거나,
+        jQuery의 $.ajax()(http://api.jquery.com/jquery.ajax)나 $.get()을 사용할 수 있다.
+
+  Fetch API를 이용한 XHR 요청을 componentDidMount()에 작성할 수 있다.
+  XHR 요청을 위한 코드를 componentWillMount()에 작성하면 로딩을 최적화할 수 있을 것 같지만,
+  그렇게 할 경우에는 두 가지 문제가 있다.
+  렌더링이 완료되는 것보다 더 빨리 서버에서 응다이 오는 경우에는 DOM에 추가하지도 않은 엘리먼트를
+  다시 렌더링하게 되어 의도하지 않은 결과를 낳을 수 있다.
+  또한, 서버 측에서 컴포넌트를 사용하는 경우에는 componentWillMount()가 서버에서도 실행된다.
+
+  이제 componentDidMount()에서 데이터를 가져오는 컴포넌트를 전체적으로 살펴보자.
+  */
+  // 표에 입력할 데이터 가져오기
+  class Users extends React.Component {
+    constructor(props) {
+      super(props)
+      this.state = {
+        users: []
+      }
+    }
+    componentDidMount() {
+      fetch(this.props['data-url'])
+        .then(res => res.json())
+        .then(users => this.setState({users: users}))
+    }
+    render() {
+      return <div className="container">
+        <h1>Lis of Users</h1>
+        <table className="table-striped table-codensed table table-bordered table-hover">
+          <tbody>
+            {this.state.users.map(user) =>
+              <tr key={user.id}>
+                <td>{user.first_name} {user.last_name}</td>
+                <td> {user.email}</td>
+                <td> {user.ip_address}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  }
+  /*
+    생성자에서 users를 빈 배열로 초기화한다.
+    이렇게 하면 render()에서 해당 상태가 존재하는지 확인하지 않아도 된다.
+    상태를 초기화하지 않고 undefined 값으로 두면, 
+    반복적으로 상태의 존재 여부를 확인하는 코드를 작성하게 되거나 버그가 생길 수도 있다.
+    시간 낭비일 뿐만 아니라 반복해서 작성해야 하므로 피곤한다.
+    초깃값을 설정해 놓으면 불편을 피할 수 있다!
+  */
+  // 안티패턴: 이렇게 하지 말자!
+  class Users extends React.Component {
+    constructor(props) {
+      super(props)
+    }
+    ...
+    render() {
+      return <div className="container">
+        <h1>List of Users</h1>
+        <table className="table-striped table-condensed table table-bordered table-hover">
+          <tbody>
+          {(this.state.users && this.state.users.length > 0 ?
+            this.state.users.map(user => 
+              <tr key={user.id}>
+                <td>{user.first_name} {user.last_name}</td>
+                <td> {user.email}</td>
+                <td> {user.ip_address}</td>
+              </tr>) : ''
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  }
+```
+
+### 갱신이벤트
+```
+  마운팅 이벤트는 React를 바깥 세상, 즉 다른 프레임워크, 라이브러리, 데이터 저장소 등과 연결하는 데 사용하곤 한다.
+  갱신 이벤트는 컴포넌트를 갱신하는 것과 관련되어 있다.
+  갱신 이벤트를 컴포넌트 라이프사이클의 처음부터 끝까지 순서대로 정리하면 다음과 같다.
+  1. compnentWillReceiveProps(newProps)
+  2. shouldComponentUpdate()
+  3. componentWillUpdate()
+  4. componentDidUpdate()
+
+  p163 표 5-2 컴포넌트 갱신에 따라 호출되는 라이프사이클 이벤트
+  컴포넌트 속성 갱신                  컴포넌트 상태 갱신                    forceUpdate() 호출을 이용한 갱신
+  componentWillReceiveProps()        
+  shouldComponentUpdate()            shouldComponentUpdate()
+  componentWillUpdate()              componentWillUpdate()               componentWillUpdate()
+  render()                           render()                            render()
+  componentDidUpdate()               componentDidUpdate()                componentDidUpdate()
+```

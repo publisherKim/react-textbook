@@ -463,3 +463,181 @@
   render()                           render()                            render()
   componentDidUpdate()               componentDidUpdate()                componentDidUpdate()
 ```
+
+#### componentWillReceiveProps(newProps)
+```
+  componeneWillReceiveProps(newProps)는 컴포넌트가 새로운 속성을 전달받을 때 실행된다.
+  이 단계를 들어오는 속성의 전환이라고 한다. 
+  componentWillReceiveProps(newProps)는 컴포넌트에 새로운 속성을 받아오는 시점에 끼어들어서 render()를 
+  호출하기 전에 이루 로직을 추가할 수 있다.
+
+  componentWillReceviveProps(newProps) 메서드 새로운 속성을 인자로 받는다. 
+  컴포넌트를 최초로 렌더링할 때는 실행되지 않는다.
+  이 메서드는 새로운 속성을 전달받고 다시 렌더링이 이뤄 지기 전,
+  새로운 속성에 따라 상태를 변경하는 경우에 유용하다.
+  기존 속성 값은 this.props 객체에 있다.
+  예를 들어 다음의 예제 코드는 불 값이 isVisible를 기준으로 하여, CSS에 사용할 opacity 상태 값을 변경한다.
+  (true 이면 1, false이면 0)
+
+    componentWillReceiveProps(newProps) {
+      this.setState({
+        opacity: (newProps.isVisible) ? 1 : 0
+      })
+    }
+
+  일반적으로 componentWillReceiveProps(newProps)에서 setState() 메서드를 호출해도 추가로 다시 렌더링이 발생하지 않는다.
+
+  새로운 속성을 전달받을 때, 반드시 새로운 값(현재 속성과 다른 값)을 가지고 있지 않을 수도 있다. 
+  왜냐하면 React 입장에서는 속성 값이 변경되었는지 알 수 있는 방법이 없기 때문이다.
+  따라서 componentWillReceiveProps(newProps)는 속성 값의 변경과 상관없이(부모 구조 또는 호출에 따라) 재랜더링이 이뤄질 때마다 실행된다.
+  그러므로 newProps가 항상 현재 속성과 다른 값이라고 가정할 수 없다.
+
+  또한, 재랜더링(render() 호출)이 반드시 실제 DOM의 변경을 의미하지도 않는다. 
+  갱신을 할지 여부와 실제 DOM에서 무엇을 갱신할지에 대한 부분은 shouldComponentUpdate()와 보정 과정에 위임되어 있다.
+```
+
+#### shouldComponentUpdate()
+```
+  shouldComponentUpdate() 이벤트는 렌더링 직전에 실행된다. 렌더링은 새로운 속성이나 상태가 전달된 후에 이뤄진다.
+  shouldComponentUpdate() 이벤트는 초기 렌더링 시점이나 forceUpdate() 호출 시에는 실행되지 않는다.
+
+  shouldComponentUpdate()에서 false를 반환하도록 구현하면 React가 다시 렌더링되지 않도록 할 수 있다.
+  변경된 부분이 없고, 불필요한 성능 저하를 피하고자 할 때(컴포넌트 수백 개를 다뤄야 할 때) 유용한 방법이다.
+  예를 들어 다음 코드에서는 + 연산자를 이용해서 불 갑이 isVisible을 숫자로 변환한 후에 opacity 값과 비교한다.
+    shouldComponentUpdate(newProps, newState) {
+      return this.state.opacity !== + newProps.isVisible
+    }
+
+  일반적으로 componentWillReceiveProps(newProps)에서 setState() 메서드를 호출해도 추가로 다시 렌더링이 발생하지 않는다.
+
+  새로운 속성을 전달받을 때, 반드시 새로운 값(현재 속성과 다른 값)을 가지고 있지 않을 수도 있다.
+  왜냐하면 React 입장에서는 속성 값이 변경되었는지 알 수 있는 방법이 없기 때문이다.
+  따라서 componentWillReceiveProps(newProps)는 속성 값의 변경과 상관없이 
+  (부모 구조 또는 호출에 따라) 재렌더링이 이워질 때마다 실행된다.
+  그러므로 newProps가 항상 현재 속성과 다른 값이라고 가정할 수 없다.
+
+  또한, 재렌더링(render() 호출)이 반드시 실제 DOM의 변경을 의미하지도 않는다. 갱신을 할지 여부와 실제 DOM에서 무엇을 갱신할지에 
+  대한 부분은 shouldComponentUpdate()와 보정 과정에 위임되어 있다.
+```
+
+#### shouldComponentUpdate()
+```
+  shouldComponentUpdate() 이벤트는 렌더링 직전에 실행된다.
+  렌더링은 새로운 속성이나 상태가 전달된 후에 이뤄진다.
+  shouldComponentUpdate() 이벤트는 초기 렌더링 시점이나 forceUpdate() 호출시에는 실행되지 않는다.
+
+  shouldComponentUpdate()에서 false를 반환하도록 구현하면 React가 다시 렌더링되지 않도록 할 수 있다.
+  변경된 부분이 없고, 불필요한 선능 저하를 피하고자 할 때(컴포넌트 수백 개를 다뤄야 할 때) 유요한 방법이다.
+  예를 들어 다음 코드에서는 + 연산자를 이용해서 불 값이 isVisible을 숫자로 변환한 후에 opacity 값과 비교한다.
+    shouldComponentUpdate(newProps, newState) {
+      return this.state.opacity !== + newProps.isVisible
+    }
+
+  isVisible false이고 this.state.opacity는 0이면 render()를 실행하지 않는다. 
+  또한 componentWillUpdate()와 componentDidUpdate()도 호출하지 않는다.
+  즉, 컴포넌트의 재렌더링을 제어할 수 있다.
+```
+
+#### componentWillUpdate()
+```
+  componentWillUpdate()는 새로운 속성이나 상태를 받은 후 렌더링 직전에 호출된다.
+  이 메서드는 초기 렌더링 시에는 호출되지 않는다.
+  갱신 전에 필요한 준비 작업을 처리할 때 componentWillUpdate() 메서드를 사용하고, 
+  이 메서드 내에서 this.setState()를 사용하는 것은 피하는 것이 좋다!
+  컴포넌트를 갱신하는 중에 다시 갱신하도록 한다면 어떨지 생각해 보자.
+  (아마도 무한루프를 탈것이다.)
+
+  shouldComponentUpdate()가 false를 반환하면, componentWillUpdate()는 실행되지 않는다.
+```
+
+#### componentDidUpdate()
+```
+  componentDidUpdate() 이벤트는 컴포넌트의 갱신 결과가 실제 DOM에 반영된 직후에 실행된다.
+  이 메서드도 초기 렌더링 시에는 호출되지 않는다.
+  componentDidUpdate()는 컴포넌트가 갱신된 후에 DOM이나 그 외의 요소를 다루는 코드를 작성해야 할 때 유용하다.
+  왜냐하면 이 시점에는 DOM에 모든 변경 사항이 반영되어 있기 때문이다.
+
+  무언가 DOM에 반영하고 갱신해야 하는 경우가 있으면, DOM에서 제거해야 하는 경우도 있다.
+  이어서 살펴볼 이벤트는 DOM에서 제거할 때 필요한 로직을 처리하기 위해 사용한다.
+```
+
+### 언마운팅 이벤트
+```
+  React에서 언마운팅이란 DOM에 요소를 분리하거나 제거하는 것을 의미한다.
+  언마운팅 이벤트는 한 가지뿐이며, 컴포넌트 라이프사이클의 마지막 유형이다.
+```
+
+#### componentWillUnmount()
+```
+  componentWillUnmount() 이벤트는 DOM에서 컴포넌트가 제거되기 직전에 호출된다.
+  정리하기 위한 코드를 이 메서드에 추가할 수 있다.
+  예를 들어 타이머를 제거하거나, DOM 요소를 정리하거나, 
+  componentDidMount()에서 연결한 이벤트를 제거할 수 있다.
+```
+
+### 간단한 예제
+```
+  온라인에 텍스를 저장할 수 있는 노트 웹 앱을 개발해야 한다고 가정해보자.
+  컴포넌트를 구현했지만, 사용자는 창이나 탭을 실수로 닫으면 작성하던 내용이 없어진다는 의견을 보내왔다.
+  
+  - 지속성에 대한 처리
+    대화상자를 구현하려면 특별한 window 이벤트를 연결해야 한다. 
+    어려운 부분은 엘리먼트를 더 이상 사용하지 않는 경우의 처리인데,
+    왜냐하면 엘리먼트를 제거해도 여기서 연결한 이벤트는 제거되지 않으므로 메모리 누수가 발생할 수 있다.(메모리 관리의 어려움)
+    이 문제에 접근하는 가장 좋은 방법은 DOM에 추가하는 시점(마운팅)에 이벤트에 연결하고, DOM에서 제거하는 시점(언마운팅)에
+    이밴트도 제거하는 것이다.
+
+  project structure
+    /note
+      /jsx
+        note.jsx
+        script.jsx
+      /js
+        note.jsx
+        react.js
+        react-dom.js
+        script.js
+      index.html
+  
+  window.onbeforeunload는 브라우저에서 기본적으로 제공하는 이벤트로 간단하게 사용할 수 있다.
+  (크로스 브라우징 지원을 위해 코드를 추가로 작성)
+
+  window.addEventListener('beforeunload', (e) => {
+    let confirmationMessage = '정말 닫으시겠습니까?';
+    e.returnValue = confirmationMessage;
+    return confirmationMessage;
+  });
+
+  window.onbeforeunload = function() {
+    ...
+    return confirmationMessage
+  }
+
+  이 코드를 componentDidMount()에 추가하여 이벤트 리스너를 등록하고, componentWillUnmount()에서
+  이벤트 리스너를 제거하는 코드를 작성해보자.
+```
+```javascript
+  // 이벤트 리스너의 등록과 제거
+  class Note extends React.Component {
+    confirmLeave(e) {
+      let confirmationMessage = '정말 닫으시겠습니까?'
+      e.returnValue = confirmationMessage
+      return confirmationMessage
+    }
+    compnentDidMount() {
+      console.log('beforeunload 이벤트에 confirmLeave 이벤트 리스너 등록')
+      window.addEventListener('beforeunload', this.confirmLeave)
+    }
+    componentWillUnmount() {
+      console.log('beforeunload 이벤트에 confirmLeave 이벤트 리스너 제거')
+      window.removeEventListener('beforeunload', this.confirmLeave)
+    }
+    render() {
+      console.log('Render')
+      return <div>
+        <p>부모 컴포넌트는 {this.props.secondsLeft}초 뒤에 제거된다.</p>
+        <input type="text" />
+      </div>
+    }
+  }
+```

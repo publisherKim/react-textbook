@@ -640,4 +640,70 @@
       </div>
     }
   }
+
+  // Note를 제거하기 전에 먼저 렌더링 한다.
+  let secondsLeft = 5
+
+  let interval = setInterval(() => {
+    if (seondsLeft == 0) {
+      ReactDOM.render(
+        <div>
+          Note was removed after {seondsLeft} seconds.
+        </div>,
+        document.getElementById('content')
+      )
+    } else {
+      ReactDOM.render(
+        <div>
+          <Note secondsLeft={secondsLeft} />
+        </div>,
+        document.getElementById('content')
+      )
+    }
+    secondsLeft--
+  }, 1000)
+  // 렌더링, 이벤트 리스너 등록후, 4차례 더 렌더링 한 후 이벤트 리스너를 제거한다.
+  /*
+    만약 componentWillMount()에서 이벤트 리스너를 제거하지 않으면 Note 엘리먼트를 제거한 후에도 
+    대화상자가 노출된다. 이것은 UX 면에서도 좋지 않고, 버그로 이어질 수 도 있다.
+    componentWillUnmount()를 이용하면 컴포넌트를 확실히 정리할 수 있다.
+    (전역에 생성한 이벤트 리스너들에대한 관리가 가능하다.)
+  */
+  /*
+    React 팀은 개발자들의 피드백을 듣고 있다. 대부분의 라이프사이클 이벤트는
+    개발자가 컴포넌트의 행동을 조정할 수 있게 해준다.
+    라이프사이클 이벤트를 사용하지 않고 코드를 작성할 수도 있지만, 
+    사용하면 더 강력한 코드를 작성할 수 있다.
+    흥미로운 점은 여전히 모범 사례와 사용법에 대해 논의 되고어지고 있다는 점이다.
+    React는 여전히 진화 중이므로 향후 라이프사이클 이벤트에 변경 사항이나 추가되는 부분이 생길지도 모른다.
+    cf: 공식문서 https://reactjs.org/docs/react-component.html
+
+    Note: componentDidCatch()
+          componentDidCatch()는 React 버전 16부터 소개된 새로운 라이프사이클 메서드로 오류나 예외 처리를 위해 
+          사용할 수 있다. 공식 문서에서는 오류 경계(error bondaries)라는 개념을 소개하는데, 
+          componentDidCatch()를 선언한 컴포넌트 클래스를 말한다.
+          componentDidCatch()가 선언된 컴포넌트는 하위 컴포넌트에서 발생하는 오류를 모두 처리할 수 있으므로
+          오류 경계라고 부르는 것이다. 
+          예를 들어 최상위 컴포넌트에 componenetDidCatch()를 선언하면 하위 컴포넌트에서 오류가 발생했을 때 
+          해당 오류를 콘솔에서 확인하거나 오류 처리를 위한 UI를 노출할 수 있다. API는 다음과 같다.
+            componentDidCatch(error, errorInfo)
+
+          error는 발생한 오류다. errorInfo에는 객체가 전달되는데, 여기에 componentStack 이라는 키로 오류가 발생한
+          컴포넌트에 대한 스택 트레이스를 제공한다.
+
+          좀 더 자세한 정보는 공식 문서와 블로그 게시물에서 확인할 수 있다.
+            - https://reactjs.org/docs/react-component.html#componentdidcatch
+            - https://reactjs.org/blog/2017/07/26/error-handling-in-react-16.html
+  */
+```
+
+### 요약
+```
+  - componentWillMount()는 서버와 클라이언트에서 모두 실행되는 반면에, 
+    componentDidMpunt()는 클라이언트에서만 실행된다.
+  - 마운팅 이벤트는 일반적으로 React를 다른 라이브러리와 통합하거나 저장소 또는 서버에서 데이터를 가져올 때 사용된다.
+  - shouldComponentUpdate()를 사용해서 렌더링을 최적화할 수 있다.
+  - componentWillReceiveProps()를 사용하면 새로운 속성이 전달될 때 상태를 변경할 수 있다.
+  - 언마운팅 이벤트는 일반적으로 정리에 사용된다.
+  - 갱신 이벤트는 새로운 속성이나 상태를 의존하는 로직을 작성할 때 사용되고, 뷰를 갱신하는 시점을 세밀하게 조절할 수 있다.
 ```

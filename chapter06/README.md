@@ -190,3 +190,184 @@
     이벤트가 UI의 기초이므로, React가 이벤트를 어떻게 구현했는지 이해하는 것은 중요하다.
   */
 ```
+
+#### React 이벤트 살펴보기
+```html
+  <!--
+  jQuery나 일반적인 자바스크립트에서는 DOM 노드에 직접 이벤트 리스너를 연결하지만, 
+  React에서는 다른 방법으로 이벤트를 처리한다. 
+  이벤트를 노드에 직저 연결하는 방법은 UI 라이프사이클에서 이벤트를 추가하거나 제거할 때 문제가 생길 수 있다.
+  예를 들어 계정 목록을 다룰 때 각 계정을 삭제, 편집하거나 새로운 계정을 목록에 추가하는 상황을 생각해보자.
+  각각 고유의 id를 가진 <li> 요소를 계정으로 하는 HTML을 살펴보자.
+  -->
+  <ul id="account-list">
+    <li id="account-1">Account #1</li>
+    <li id="account-2">Account #2</li>
+    <li id="account-3">Account #3</li>
+    <li id="account-4">Account #4</li>
+    <li id="account-5">Account #5</li>
+    <li id="account-6">Account #6</li>
+  </ul>
+  <!--
+  계정 목록에서 계정의 삭제나 추가가 빈번하게 이뤄진다면, 이벤트를 다루는 것이 복잡해질 것이다.
+  더 나은 방법은 부모 요소(account-list)에 하나의 이벤트 리스너를 두고, 버블링되는 이벤트를 처리하는 것이다.
+  (이벤트를 하위 요소에서 처리하지 않으면 DOM 트리를 따라 위로 버블링된다. 이벤트 위임 부모에서 관리)
+  React는 내부적으로 상위 요소 및 대상 요소에 연결된 이벤트를 매핑에서 추적한다.
+  React가 부모 요소(document)에서 대상 요소를 추적할 수 있다.
+  -->
+  <!--
+  p183 그림6-4 DOM 이벤트 발생 / 2~3 상위요소로 버블링 / 4. 일반적인 React 이벤트 리스너(버블링 단계)가
+  이벤트를 처리하는 위치. 
+  React 이벤트는 최상위(Document)에서 처리된다.
+  Document                    →                                                이벤트 핸들러
+                              4. 이벤트 핸들러가 이벤트를 처리한다.
+  3. 버블링을 거쳐 최상위인
+  Document에 전달된 이벤트를
+  React 이벤트 리스너가 잡아낸다.      
+                                ul (Parent)
+  2. 부모 요소로 이벤트 버블링                  li
+                                              li
+                                              li
+                                              li    ← 1. DOM 이벤트(예: 계정 추가)
+  
+  예제 코드 6.2의 Mouse 컴포넌트를 다시 살펴보면 부모 요소를 통한 이벤트 위임에 대해 알 수 있다.
+  Mouse 컴포넌트에는 마우스오버 이벤트를 처리하는 <div> 엘리먼트가 있는데, 여기서 이벤트를 추적해보자.
+
+  Chrome, Firefox의 개발자 도구를 열고, Elements 탭 또는 Inspector(검사기) 탭에서 data-reactroot
+  요소를 선택하고(또는 Chrome이나 Firefox의 문맥 메뉴에서 요소 검사를 이용해도 좋다)
+  개발자 도구의 콘솔에서 $0를 입력하고 Enter를 누르면 <div>에 접근할 수 있다.
+  알아두면 좋은 요령이다.
+
+  신기하게도 DOM 노드인 <div>에는 연결된 이벤트 리스너가 없다.
+  그림 6-5에서 $0는 <div>이며, reactroot 요소다. 특정 DOM 노드(<div> 요소)에 연결된 이벤트 리스너를 확인하려면
+  개발자 도구 콘솔에서 전역 메서드인 getEventListeners($0)를 실행한다.
+
+  결과는 빈 객체 {}다. React는 reactroot 노드인 <div>에 이벤트 리스너를 연결하지도 않았다.
+  <div> 요소에 마우스를 올리면 콘솔에 로그가 출력되는 것을 확인할 수 있다. 이벤트가 정상적으로 처리되고 있는 것이다.
+  이벤트 리스너는 어디에 있는 것일까?
+  같은 절차를 <div id="content"> 요소나 붉은 외곽선이 있는 <div> 요소(reactroot의 자식)에도 실행해보자.
+  콘솔에서 $0로 Elements 탭에서 현재 선택한 요소에 접근할 수 있다.
+  새로운 요소를 선택하고 콘솔에 getEventListeners($0)를 실행해보자. 여전히 아무 결과가 없는가?
+
+  그렇다면 콘솔에 다음과 같이 작성해서 document에 연결된 이벤트가 있는지 확인해보자.
+    getEventListener(document)
+  
+  드디어 이벤트 Object {mouseover: Array[1]}를 찾았다. p185 그림 6-6과 같다. 
+  React가 이벤트 리스너를 최상위 부모인 document 요소에 연결했다는 것을 알 수 있다. 
+  이벤트는 <div> 같은 개별 노드나 data-reactroot 요소에 연결되지 않았다.
+
+  콘솔에서 다음과 같이 실행하면 이 이벤트를 제거할 수 있다.
+  document.removeEventListener('mouseover', getEventListeners(document).mouseover[0].listener, false)
+
+  "mouse is over"라는 메시지를 더 이상 확인할 수 없다. document에 연결했던 이벤트 리스너는 이제 사라졋다.
+  React가 이벤트를 각 요소가 아닌 document에 연결한다는 점을 확인할 수 있었다.
+  이 덕분에 React는 좀 더 빠르게 동작하는데, 특히 목록을 다룰 때 그렇다.
+  jQuery에서 개별 요소에 이벤트를 연결하는 점과 비교할 수 있는 부분이다.
+  성능을 생각한 React를 칭찬할 수 밖에 없다.
+
+  만약 마우스오버를 다루는 두 엘리먼트처럼 같은 종류의 이벤트를 사용하는 다른 엘리먼트가 있다면, 
+  하나의 이벤트에 연결되고 React가 내부적으로 올바른 자식 엘리먼트(대상 엘리먼트)와 매핑하여 처리한다.
+  그림 6-7에서도 확인할 수 있다. 이벤트가 시작된 대상 요소에 대한 정보는 이벤트 객체에서 확인할 수 있다.
+  cf: p186 그림 6-7 React는 최상위에서 이벤트 리스너를 재사용하므로 
+      마우스오버 이벤트를 연결한 엘리먼트가 여러 개 있더라도 각 종류별로 하나의 이벤트 리스너만 사용 하는 것을 확인할 수 있다.
+  -->
+```
+
+#### React 합성 이벤트 객체 다루기
+```javascript
+  /*
+  브라우저에 따라 W3C 명세(www.w3.org/TR/DOM-Level-3-Events 참조)를 다르게 구현할 수 있다.
+  DOM 이벤트를 다룰 때, 이벤트 핸들러에 전달되는 이벤트 객체에 다른 프로퍼티나 메서드가 있을 수도 있다.
+
+  브라우저 간의 차이로 인해 이벤트를 처리하는 코드를 작성할 때 크로스 브라우징 문제를 경험할 수 있다.
+  예를 들어 IE8에서 대상 요소를 가져오려면 event.srcElement에 접근하지만, Chrome, Safari, Firefox 브라우저에서는 
+  event.target으로 접근한다.
+
+  var target = event.target || event.srcElement
+  console.log(target.value)
+
+  당연한 이야기지만, 크로스 브라우징 문제는 10년 전에 비해 많이 나아졌다. 
+  그렇다고는 해도 잘 알려지지 않은 브라우저 간의 구현 차이 때문에 명세를 읽고 디버깅을 하는 데 시간을 쓰고 싶어 하는 사람은 없을 것이다.
+
+  크로스 브라우징 문제가 좋지 않은 것은 다른 브라우저에서도 같은 사용자 경험을 제공해야 하기 때문이다.
+  일반적으로 브라우저 API의 차이를 처리하기 위해 if/else 문 같은 코드를 더 작성해야 한다.
+  서로 다른 브라우저에서 테스트해야 하는 불편함도 있다.
+  즉, 크로스 브라우징 문제를 고치거나 우회하는 방법을 찾아내는 것은 CSS 문제, IE8 문제, 
+  힙합 안경을 쓴 깐깐한 디자이너를 상대하는 것보다 훨씬 더 골치 아픈 일이다.
+
+  React의 해결책은 브라우저 내장 이벤트를 감싸는 것이다. 
+  웹 페이지를 실행하는 브라우저의 구현에 관계없이 이벤트가 W3C 명세를 따르도록 만들었다.
+  내부적으로 React는 합성 이벤트(SyntheticEvent)를 위한 특별한 클래스를 사용한다.
+  SyntheticEvent 클래스의 인스턴스를 이벤트 핸들러에 전달하는 것이다.
+  예를 들어 합성 이벤트 객체에 접근하려면 다음 예제 코드 6.3처럼 이벤트 핸들러 함수에 인자로 event를 추가할 수 있다.
+  또한, 그림 6-8처럼 이벤트 객체를 콘솔에서 확인할 수 있다.
+  */
+  // 합성 이벤트를 받는 이벤트 핸들러
+  class Mouse extends React.Component {
+    render() {
+      return <div>
+        <div
+          style={{border: '1px solid red'}}
+          onMouseOVer={((event) => {  // event 인자를 정의한다.
+            console.log('mouse is over with event')
+            console.dir(event)    // 합성이벤트 객체에 접근해서 console.dir로 콘솔에 노출하도록 한다.
+          })}
+        ></div>
+      </div>
+    }
+  }
+  /*
+    이벤트 핸들러 코드를 컴포넌트 메서드나 독립적인 함수로 옮길 수 있다.
+    예를 들어 ES6+/ES2015+ 클래스에 handleMouseOver() 메서드를 생성하고, 
+    render()가 반환하는 부분에서 {this.handleMouseOver.bind(this)}로 참조할 수 있다.
+    bind()는 메서드에 정확한 this 값을 전달하기 위해 사용된다.
+    앞서 예제에서 살펴본 것처럼 화살표 함수를 사용하면 this 바인딩이 자동으로 이뤄진다.
+    createClass() 문법을 사용할 때도 자동 바인딩 된다.
+    클래스를 사용할 때는 직접 바인딩해야 한다.
+    메서드에서 this를 사용하지 않는다면 바인딩을 하지 않고,
+    onMouseOver={this.handleMouseOver}라고 작성할 수 있다.
+
+    handleMouseOver()라는 이름은 5장에서 살펴본 라이프사이클 이벤트와 달리 임의로 정한 것이며,
+    자기 자신이나 함께 일하는 팀이 이해할 수 있는 이름이라면 규칙을 따를 필요는 없다.
+    대부분의 경우, React에서 이벤트 핸들러를 작성할 때는 일반적인 클래스 메서드와 구분하기 위해
+    handle을 앞에 붙이고 mouseOver 같은 이벤트 이름을 넣거나, save처럼 수행하는 동작을 이름으로 사용한다.
+  */
+  // 이벤트 핸들러를 클래스 메서드로 작성하고 render()에서 바인딩 한다.
+  class Mouse extends React.Component {
+    handleMouseOver(event) {
+      console.log('mouse is over with event')
+      console.dir(event.target)
+    }
+    render() {
+      return <div>
+        <div
+          style={{border: '1px solid red'}}
+          onMouseOver={this.handleMouseOver.bind(this)}
+        >
+          Open DevTools and move your mouse cursor over here
+        </div>
+      </div>
+    }
+  }
+  /*
+  이벤트의 프로퍼티와 메서드는 stopPropagation(), preventDefault(), target, currentTarget처럼
+  대부분의 브라우저 내장 이벤트와 같다.
+  내장 프로퍼티나 메서드를 찾을 수 없을 때는 nativeEvent를 통해서 브라우저의 내장 이벤트에 접근할 수 있다.
+    event.nativeEvent
+  
+  React 버전 15의 합성 이벤트 인터페이스에 포함되어 있는 몇 가지 프로퍼티와 메서드를 살펴보면 다음과 같다.
+    - currentTarget: 이벤트를 캡처한 요소의 DOMEventTarget(대상 요소 또는 부모 요소일 수 있다.)
+    - target: DOMEventTarget, 이벤트가 발생한 요소
+    - nativeEvent: DOMEvent, 바라우저 내장 이벤트 객체
+    - preventDefault(): 링크나 폼 전송 버튼처럼 기본 동작을 방지하는 메서드
+    - isDefaultPrevented(): 기본 동작이 방지 되었을 때 실행하면 true를 반환한다.
+    - stopPropagation(): 이벤트 전파 중단
+    - isPropagationStopped(): 이벤트 전파가 중단 되었을 때 실행하면 true를 반환한다.
+    - type: 태그명 문자열
+    - presist(): 합성 이벤트를 이벤트 폴에서 꺼낸 후 사용자 코드에서 이벤트에 대한 참조를 유지할 수 있도록 한다.
+    - isPersistent(): 합성 이벤트를 이벤트 풀에서 꺼낸 경우 실행하면 true를 반환한다.
+
+    이벤트 객체의 target 프로퍼티는 이벤트가 캡처된 곳이 아니라 이벤트가 발생한 DOM 노드로 currentTarget과는 차이가 있다.
+    (https://developer.mozilla.org/ko/docs/Web/API/Event/target)
+  */
+```

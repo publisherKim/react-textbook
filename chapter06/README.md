@@ -108,7 +108,8 @@
 ```
 
 #### 캡처 및 버블링 단계
-```
+```javascript
+  /*
   리엑트는 명령형이 아니라 선언형 스타일이므로 객체를 조작할 필요가 없고,
   jQuery처럼 $('.btn').click(handleSave) 같은 방식으로 이벤트를 등록하지 않는다.
   대신에 onClick={handleSave}처럼 JSX에 속성으로 이벤트를 선언한다.
@@ -156,4 +157,36 @@
 
   캡처 단계를 위한 이벤트 리스너를 등록할 때는 이벤트 이름 뒤에 Capture를 추가하여 작성 한다.
   예를 들어 마우스오버 이벤트의 캡처 단계를 처리하려면, onMouseOver라고 쓰는 대신 onMouseOverCaputer로 정의한다.
+  */
+  // 캡처 이벤트에 이어지는 버블링 이벤트
+  class Mouse extends React.Component {
+    render() {
+      return <div>
+        <div
+          style={{border: '1px solid red'}}
+          onMouseOverCapture={
+            ((event) => {
+              console.log('mouse over on capture event')
+              console.dir(event, this)
+            }).bind(this)}
+          onMouseOver={
+            (event => {
+              console.log('mouse over on bubbling event')
+              console.dir(event, this)
+            }).bind(this)
+          }
+        >Open DevTools and move your mouse cursor over here</div>
+      </div>
+    }
+  }
+  /*
+    1 픽셀의 붉은 외곽선이 있는 컨테이너 내부에 텍스트가 입력되어 있고, 여기로 커서를 옮기면 된다.
+    각각의 마우스오버 이벤트는 이벤트 객체와 함께 이벤트의 종류를 콘솔에 출력한다.
+    (console.dir()의 사용으로 인해 그림 6-3의 개발자 도구에서는 Proxy 아래에 감춰져 있다.)
+
+    당연하지만, 캡처 이벤트가 먼저 출력된다. 이런 동작 원리를 응용해서 이벤트 전파를 중지시키거나 
+    이벤트 간의 우선순위를 정할 수 있다.
+
+    이벤트가 UI의 기초이므로, React가 이벤트를 어떻게 구현했는지 이해하는 것은 중요하다.
+  */
 ```

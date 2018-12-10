@@ -414,3 +414,116 @@
     내장 이벤트를 직접 다루는 경우에는 크로스 브라우징 문제를 해결해야 할 것이다.
   */
 ```
+
+#### 이벤트와 상태 사용하기
+```javascript
+  /*
+  이벤트와 함께 상태를 사용하여 이벤트를 처리하고 컴포넌트의 상태를 변경할 수 있다면 사용자 조작과 
+  상호작용하는 UI를 만들 수 있을 것이다. 
+  모든 이벤트를 캡처해서 이벤트에 따라 뷰와 애플리케이션 로직을 변경할 수 있으므로 재미도 있을 것이다.
+  또한, 외부 코드나 표현이 불필요하므로 더욱 독립적인 컴포넌트를 만들 수 있다.
+
+  0부터 시작하는 카운터 버튼 구현해 보기
+  버튼을 클릭할 때마다 버튼에 있는 숫자가 증가한다.
+    - constructor(): this.state에 카운터 값을 0으로 설정해서 뷰에서 사용할 수 있게 한다.
+    - handleClick(): 카운터의 숫자를 증가시키는 이벤트 핸들러
+    - render(): JSX로 작성한 버튼을 반환하는 render() 메서드
+
+  handleClick() 메서드는 다른 React 컴포넌트 메서드와 다를 것이 없다. 
+  3장에서 살펴본 getUrl()과 앞에서 설명한 handleMouseOver()를 기억하고 있을 것이다.
+  this 바인딩을 직접 해주는 것을 제외하면, handleClick() 메서드도 비스한 방식으로 선언한다.
+  handleClick() 메서드는 상태 객체의 카운터 값을 1씩 증가시켜서 현재 카운터 값으로 변경한다.
+  */
+  // 클릭할 때마다 상태 갱신하기
+  class Content extends React.Component {
+    constructor(props) {
+      super(props)
+      this.state = {
+        counter: 0
+      }
+    }
+    handleClick(event) {
+      this.setState({counter: ++this.state.counter})
+    }
+    render() {
+      return (
+        <div>
+          <button
+            onClick={this.handleClick.bind(this)}
+            className="btn btn-primary"> 
+            Don't click me {this.state.counter} times!
+          </button>
+        </div>
+      )
+    }
+  }
+  /*
+  Note: 함수 호출과 정의
+  예제 코드 6.6을 다시 보면 this.handleClick()은 메서드지만, JSX에서 onClick에 할당할 때 호출하지는 않는다.
+  (button onClick={this.handleClick}) 즉, 중괄호 안의 this.handleClick 뒤에 ()를 작성해서 호출 하지 않았다.
+  함수 정의를 전달할 뿐 호출할 필요는 없기 때문이다. 
+  자바스크립트의 함수는 일급 객체이므로 이 경우에는 함수 정의를 onClick 속성 값으로 전달한 것이다.
+
+  반면, bind()의 경우에는 호출했는데, 호출해야만 bind()가 올바른 this 값을 가진 함수 정의를 반환하기 때문이다.
+  따라서 onClick의 값으로 여전히 함수 정의를 전달한다.
+
+  앞서 살펴본 것처럼 onClick은 실제 HTML 속성은 아니지만, className={btnClassName} 또는 href={this.props.url}처럼
+  문법적으로 다른 JSX 선언과 비슷하다는 점도 기억해두기 바란다.
+
+  버튼을 클릭할 때마다 카운터가 증가하는 것을 확인할 수 있다. 
+
+  onClick이나 onMouseOver와 유사한 방법으로 React가 지원하는 DOM 이벤트를 다룰 수 있다.
+  상태를 변경하는 이벤트 핸들러와 뷰를 정의하는 것이다.
+  명령형으로 표현을 수정할 필요가 없다.
+  선언형 스타일의 힘을 느껴보자!
+
+  자식 엘리먼트에 이벤트 핸들러나 다른 객체를 전달하는 방법에 대해서 살펴보자.
+  */
+```
+
+#### 이벤트 핸들러를 속성으로 전달하기
+```
+  다음과 같은 경우를 가정해보자. 상태비저장 컴포넌트로 만든 버튼이 있다.
+  이 버튼 컴포넌트는 스타일만 입혀져 있다. 
+  어떻게 하면 이 버튼에 이벤트 리스너를 연결해서 실행시킬 수 있을까?
+
+  잠시 속성으로 다시 돌아가보자. 속성은 변경이 불가능하며, 부모 컴포넌트에서 자식으로 전달된다.
+  자바스크립트에서 함수가 일급 객체이므로, 자식 엘리먼트의 속성으로 함수를 전달해서 이벤트 핸들러로 사용할 수 있다.
+
+  상태비저장 컴포넌트에서 발생하는 이벤트를 처리하는 방법은 이벤트 핸들러를 상태비저장 컴포넌트의 속성으로 전달하고, 전달한 이벤트 핸들러 함수를 상태비저장 컴포넌트에서 실행하도록 하는 것이다. 예를 들어 앞에서 살펴본 예제의 기능을 둘로 분리하여 ClickCounterButton 컴포넌트와 Content 컴포넌트를 만들어보자. 
+  ClickCounterButton은 둔한 컴포넌트(dumb component, 상태비저장 컴포넌트)고, 
+  Content는 영리한 컴포넌트(smart component, 상태저장 컴포넌트)다.
+
+  Note: 둔한 프리젠테이션 컴포넌트와 영리한 컨테이너 컴포넌트
+  둔한 컴포넌트와 영리한 컴포넌트는 각각 프레젠테이션 컴포넌트와 컨테이너 컴포넌트라 부르기도 한다.
+  이런 분류 방법은 상태저장 컴포넌트와 상태비저장 컴포넌트와 관련되어 있기도 하지만 항상 일치하지는 않는다.
+
+  대부분의 경우 프레젠테이션 컴포넌트는 상태가 없는 상태비저장 컴포넌트나 함수형 컴포넌트다. 
+  다만, 컴포넌트의 표현을 위해 상태를 사용하는 경우도 있으므로 반드시 그렇다고 할 수는 없다.
+
+  프레젠테이션 컴포넌트는 this.props.children을 자주 사용하고 DOM 요소를 렌더링한다. 
+  반면에 컨테이너 컴포넌트는 DOM 요소가 없을 때의 처리를 다루고 상태가 있으며, 
+  일반적으로 고차 컴포넌트 패턴(higher-order-component-pattern)을 사용하고 데이터 소스에 연결하는 역활을 한다.
+
+  둔한 컴포넌트와 영리한 컴포넌트를 조합해서 사용하면 코드는 정돈되고 관심사 분리도 가능하게 해주므로 모범적인 사례라고 할 수 있다.
+
+  코드를 실행하면 클릭할 때마다 카운터가 증가한다. 보기에는 그림 6-10처럼 버튼과 카운터가 있던 기존 예제와 달라진 것이 없다.
+  그렇지만 내부적으로는 상태를 저장하지 않고, 
+  로직이 없는 ClickCounterButton 컴포넌트가 여전히 로직을 처리하고 있는 Content 컴포넌트에 추가되었다.
+
+  ClickCounterButton 컴포넌트는 자체적인 onClick 이벤트 핸들러가 없다(즉, this.handler 또는 this.handleClick 같은 메서드가 없다).
+  부모 컴포넌트가 전달한 이벤트 핸들러를 this.props.handler 속성으로 접근하여 사용한다. 
+  일반적으로 버튼은 별도의 상태가 없는 프레젠테이션 컴포넌트이므로 이 방법을 사용해서 버튼의 이벤트를 처리하면 
+  다른 UI에서 버튼을 재사용할 수 있느 이점이 있다.
+```
+```javascript
+  // 상태비저장 버튼 컴포넌트
+  class ClickCounterButton extends React.Component {
+    render() {
+      return <button
+        onClick={this.props.handler}
+        className="btn btn-danger"
+      >Increase Volume (Current volume is {this.props.counter})</button>
+    }
+  }
+```

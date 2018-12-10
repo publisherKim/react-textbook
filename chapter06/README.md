@@ -369,5 +369,48 @@
 
     이벤트 객체의 target 프로퍼티는 이벤트가 캡처된 곳이 아니라 이벤트가 발생한 DOM 노드로 currentTarget과는 차이가 있다.
     (https://developer.mozilla.org/ko/docs/Web/API/Event/target)
+
+    대부분의 경우 UI를 만들 때는 이벤트 캡처뿐만 아니라 입력상자의 텍스트가 필요한 경우도 있는데, 
+    event.target.value로 접근한다.
+
+    이벤트 핸들러가 한 번 실행되고 나면 합성 이벤트는 null이 되어 더 이상 사용할 수 없다.
+    그래서 같은 이벤트 핸들러가 실행된 후에 이벤트 객체에 접근하기 위해 전역변수에 담거나 
+    콜백함수에서 비동기적으로 사용하려고 생각한 사람도 있을 것이다.
+    예를 들면 다음 예제 코드처럼 이벤트 객체에 참조를 전역변수 e에 저장한다고 가정할 경우
+  */
+  // 합성 이벤트는 이벤트 핸들러 실행 후 null이 된다.
+  class Mouse extends React.Component {
+    handleMouseOver(event) {
+      console.log('mouse is over with event')
+      window.e = event // 안티패턴
+      console.dir(event.target)
+      setTimeout(() => {
+        console.table(event.target)
+        console.table(window.e.target)
+      }, 2345)
+    }
+    render() {
+      return <div>
+        <div
+          style={{border: '1px solid red'}}
+          onMouseOver={this.handleMouseOver.bind(this)}
+        >
+          Open DevTools and move your mouse cursor over here
+        </div>
+      </div>
+    }
+  }
+  /*
+    React가 합성 이벤트를 재사용하는 것은 성능 때문이다. 경고문구를 통해 확인 가능하다.
+
+    이벤트 핸들러를 실행한 후에도 합성 이벤트를 유지하려면 event.persist() 메서드를 사용하면 된다.
+    이 메서드를 실행하면 이벤트 객체가 재사용되지 않으므로 null로 처리되지 않는다.
+
+    React가 내장 이벤트 객체를 크로스 브라우징 목적으로 감싸서 브라우저 이벤트를 합성(또는 정규화)하는 것을 살펴 보았다.
+    합성 이벤트 덕분에 모든 브라우저에서 이벤트가 똑같이 작동한다. 
+    또한, 대부분의 경우에 event.stopPropagation()과 event.preventDefault()를 포함한 
+    모든 내장 메서드를 React 이벤트에서 사용할 수 있다. 그렇지만 만약 내장 이벤트에 접근해야 한다면
+    합성 이벤트 객체에서 event.nativeEvent 프로퍼티로 접근할 수 있다. 당연한 이야기지만, 
+    내장 이벤트를 직접 다루는 경우에는 크로스 브라우징 문제를 해결해야 할 것이다.
   */
 ```

@@ -526,4 +526,61 @@
       >Increase Volume (Current volume is {this.props.counter})</button>
     }
   }
+  /*
+    ClickCounterButton 컴포넌트는 덤 앤 더머의 두 주인공보다도 아는 게 없는 것 같지만, 
+    그 점이 이 아키텍처의 장점이기도 하다.
+    프리젠테이션 컴포넌트는 단순하고 이해하기 쉽다.
+
+    ClickCounterButton 컴포넌트는 counter 속성도 사용하여 {this.props.counter}로 렌더링한다.
+    자식 컴포넌트에 속성을 전달하는 것은 간단하다.
+    표준 속성 문법에 따라 name=VALUE로 작성한다.
+
+    예를 들어 ClickCountrButton 컴포넌트에 counter와 이벤트 핸들러 속성으로 전달하려면,
+    부모 컴포넌트의 render() 메서드에 JSX를 작성할 때 속성으로 추가한다.
+    (여기서 부모 컴포넌트는 Content다).
+  */
+  <div>
+    <ClickCounterButton
+      counter={this.state.counter}
+      handler={this.handleClick}
+    ></ClickCounterButton>
+  </div>
+  /*
+    ClickCounterButton의 counter는 속성이므로 변경할 수 없다. 
+    그렇지만 부모 컴포넌트인 Content에서는 상태이므로 변경할 수 있다.
+    이름도 다르게 작성할 수 있다.
+    자식에게 속성을 전달할 때 반드시 같은 이름을 사용할 필요는 없다.
+    그렇지만 같은 이름을 사용하면 서로 다른 컴포넌트에서 데이터가 관련되어 있다는 점을 이해하는데 도움이 된다.
+    부모 컴포넌트인 Content에서 counter의 초깃값을 0으로 설정한다. 이벤트 핸들러도 부모 컴포넌트에 정의되어 있다.
+    따라서 자식 컴포넌트인 ClickCounterButton의 이벤트는 부모 컴포넌트에서 실행된다.
+  */
+  // 이벤트 핸들러를 속성으로 전달한다.
+  class Content extends React.Component {
+    constructor(props) {
+      super(props)
+      this.handleClick = this.handleClick.bind(this)
+      this.state = {counter: 0}
+    }
+    handleClick(event) {
+      this.setState({counter: ++this.state.counter})
+    }
+    render() {
+      return (
+        <div>
+          <ClickCounterButton
+            counter={this.state.counter}
+            handler={this.handleClick}
+          ></ClickCounterButton>
+        </div>
+      )
+    }
+  }
+  /*
+    앞서 이야기 한 것처럼, 자바스크립트에서 함수는 일급 객체이며, 변수나 속성으로 전달할 수 있다.
+    따라서 이 점에 대해서는 놀라울 것이 없을 것이다.
+    과연 이벤트 핸들러 같은 로직은 자식 컴포넌트와 부모 컴포넌트 중 어디에 두어야 하는 것일까?
+
+    React 컴포넌트를 다루는 올바른 방식을 따르기 위해 ClickCouterButton 컴포넌트는 여전히 지난 번
+    예제처럼 상태비저장 컴포넌트로 유지하고, 속성과 JSX만 있다.
+  */
 ```

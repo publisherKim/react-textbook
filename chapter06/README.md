@@ -822,3 +822,80 @@
   SliderValue 컴포넌트에서 value 라벨을 구현한다.
   */
 ```
+
+#### 라벨 통합하기
+```javascript
+  /*
+  React 메서드에서 직접 jQuery를 호출하는 방법을 살펴 봤다. 
+  이벤트를 감지할 수 있는 다른 객체를 jQuery와 React에서 동시에 사용하면 둘의 결합을 분리할 수 있다.
+  이 방법은 느슨하게 결합된 패턴을 이용해 불필요한 의존성을 줄일 수 있어 좀 더 선호된다. 
+  따라서 sliderValue 컴포넌트는 jQuery 슬라이더를 호출하는 방법을 모른다.
+  이렇게 하면 슬라이더가 슬라이더 2.0이 되어 인터페이스가 변경되더라도 더 쉽게 교체할 수 있으므로 
+  좋은 방법이라고 할 수 있다.
+
+  jQuery 이벤트에서 window로 이벤트를 전달하고, 
+  React 컴포넌트사이클 이벤트에서 window에 이벤트 리스너를 연결하는 방식으로 구현할 수 있다.
+  */
+  // window를 이용한 jQuery 플러그인과의 통합
+  class SliderValue extends React.Component {
+    constructor(props) {
+      super(props)
+      this.handleSlide = this.handleSlide.bind(this)
+      this.state = {sliderValue: 0}
+    }
+    handleSlide(event) {
+      this.setState({sliderVale: event.detail.ui.value})
+    }
+    componentDidMount() {
+      window.addEventListenner('slide', this.handleSlide)
+    }
+    componentWillUnmount() {
+      window.removeEventListenner('slide', this.handleSlide)
+    }
+    render() {
+      return <div className="">
+        Value: {this.state.sliderValue}
+      </div>
+    }
+  }
+  /*
+  덧붙여서, 사용자 정의 이벤트를 전달해야 하는 경우도 있을 것이다. 
+  SliderButtons 컴포넌트에 적용했던 첫 번째 방법의 경우에는 플러그인에 이미 존재하는 이벤트를 사용했으므로 사용자 정의 이벤트를 쓸 필요가 없었다.
+
+  이번에 살펴볼 구현 방법은 이벤트를 생성하여 데이터와 함께 window로 전달한다. 
+  jQuery 슬라이더 객체를 생성하는 코드와 함께 사용자 정의 slide 이벤트를 전달하는 코드를 구현할 수 있다.
+  */
+  // jQuery UI 플러그인에 이벤트 리스너 설정하기
+  let handleChange = (e, ui) => {   // jQuery 슬라이더에 적용하여 사용자 정의 이벤트를 전달할 이벤트 핸들러를 생성한다.
+    var slideEvent = new CustomEvent('slide', {   // 사용자 정의 이벤트를 생성한다.
+      detail: {ui: ui, jQueryEvent: e}   // 현재 슬라이더 값을 가진 jQuery 데이터를 전달한다.
+    })
+    window.dispatchEvent(slideEvent)    // 이벤트를 window로 전달한다.
+  }
+  $('#slider').slider({
+    'change': handleChange,   // change와 slide에 각각 이벤트 리스너를 등록하여 프로그래밍 변경과 UI 변경을 감지한다.
+    'slide': handleChange
+  })
+  /*
+  코드를 실행하면 각 버튼과 value 라벨이 완벽하게 작동한다. 각각 느슨한 결합, 강한 결합을 이용한 두 가지 방법을 살펴봤다.
+  강한 결합을 이용한 구현이 좀 더 짧지만, 느슨한 결합을 이용한 방법이 추후 코드 수정이 더 쉬우므로 좀 더 추천한다.
+
+  통합 과정에서 살펴본 것처럼, React는 componentDidMount() 라이프사이클 메서드를 통해서 다른 라이브러리의 이벤트를 멋지게 다룰 수 있다!
+  React를 다른 라이브러리와 쉽게 통합할 수 있다는 것은 큰 장점이다.
+  개발자들은 전체 애플리케이션을 처음부터 다시 작성하지 않고도 서서히 React로 변경하거나, 
+  기존에 사용해온 좋아하는 라이브러리를 React와 함께 계속 사용할 수도 있다.
+  */
+```
+
+### 요약
+```
+  - onClick은 마우스와 트랙패드의 클릭을 캡처한다.
+  - JSX 문법으로 이벤트 리스너를 추가할 때는 <a onName={this.METHOD}>로 작성한다.
+  - constructor() 또는 JSX를 이용해 bind()로 이벤트 핸들러에 this를 바인딩해서 컴포넌트 클래스의 인스턴스에 
+    접근할 수 있다.
+  - componentDidMount()는 브라우저에서만 실행된다. 
+    componentWillMount()는 브라우저와 서버 측 렌더링에서 모두 실행된다.
+  - React는 합성 이벤트 객체를 제공함으로써 거의 대부분의 표준 HTML DOM 이벤트를 지원한다.
+  - React를 다른 프레임워크와 통합하거나 React가 지원하지 않는 이벤트를 처리하기 위해 
+    componentDidMount()와 componentWillUnmount()를 사용할 수 있다.
+```

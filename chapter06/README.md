@@ -583,4 +583,242 @@
     React 컴포넌트를 다루는 올바른 방식을 따르기 위해 ClickCouterButton 컴포넌트는 여전히 지난 번
     예제처럼 상태비저장 컴포넌트로 유지하고, 속성과 JSX만 있다.
   */
+  // Content에서 전달한 이벤트 핸들러를 사용하는 버튼 컴포넌트
+  class ClickCounterButton extends React.Component {
+    render() {
+      return <button
+        onClick={this.props.handler}
+        className="btn btn-info"
+      >Don't touch me with your dirty hands!</button>
+    }
+  }
+  // 당연한 애기겠지만, ClickCounterButton 컴포넌트를 클래스 대신 함수로 작성하여 문법을 좀 더 단순화할 수 있다.
+  
+  const ClickCounterButton = (props) => {
+    return <button
+      onClick={props.handler}
+      className="btn btn-info"
+    >Don't touch me with your dirty hands!</button>
+  }
+  /*
+    새로 만든 Counter 컴포넌트는 카운터 값을 속성 value로 받아서 표시한다.
+    (이름은 다르게 작성해도 좋다. 항상 counter라고 쓸 필요는 없다).
+  */
+  class Counter extends React.Component {
+    render() {
+      return <span>Clicked {this.props.value} times.</span>
+    }
+  }
+
+  // 두 개의 컴포넌트에 이벤트 핸들러와 상태를 전달한다.
+  class Content extends React.Component {
+    constructor(props) {
+      super(props)
+      this.handleClick = this.handleClick.bind(this)
+      this.state = {countr: 0}
+    }
+    handleClick(event) {
+      this.setState({counter: ++this.state.counter})
+    }
+    render() {
+      return (
+        <div>
+          <ClickCounterButton handler={this.handleClick}></ClickCounterButton>
+          <br/>
+          <Counter value={this.state.counter}></Counter>
+        </div>
+      )
+    }
+  }
+  /*
+    자식 컴포넌트간에 상호작용이 필요한 경우에는 부모나 컨테이너 컴포넌트에는 두는 것이 가장 좋은 방법이다.
+    그렇지만 이벤트가 하나의 자식 컴포넌트에만 영향을 끼친다면, 
+    상위 컴포넌트를 이벤트 처리 메서드로 어지럽힐 필요가 없다.
+  */
+```
+
+### React가 지원하지 않는 DOM 이벤트 처리하기
+```javascript
+  /*
+  예를들어 resize 이벤트에 따라 크기를 크거나 작게 변경해야 하는 UI를 만들어야 하는 경우가 있을 수 있다.
+  그렇지만 이 이벤트는 React가 지원하지 않는다! 
+  우리가 앞서 살펴본 React의 기능인 라이프사이클 이벤트를 이용하면 resize 이벤트나 그 외의 이벤트를 캡쳐할 수 있다.
+
+  표준 HTML 라디오 버튼 요소는 크기를 변경하기 어렵고, 브라우저에 따라 차이가 있다.
+  이런 경우에 custom 라디오 버튼 컴포넌트가 필요하다.
+  React에서 화면사이즈에 따라 크기가 바뀌는 라디오 버튼을 만들어 보자.
+  그러나 React는 resize 이벤트를 지원하지 않는다.
+  */
+  render() {
+    return <div>
+      <div onResize={this.handleResize}
+        className="radio-tagger"
+        style={this.state.taggerStyle}
+      ></div>
+    </div>
+  }
+  /*
+  resize처럼 미지원 이벤트에 연결하려면 React 컴포넌트의 라이프사이클 이벤트를 사용한다.
+  componentDidMount()에서 window의 resize 이벤트 리스너를 추가하고, 
+  같은 이벤트 리스너를 componentWillUnmount()에서 제거해서 컴포넌트가 DOM에서 제걸될 때 이벤트 리스너도 제거한다.
+  컴포넌트를 제거한 후에 이벤트 리스너를 방치 하는 것은 메모리 누수를 일으켜서, 갑자기 애플리케이션이 중단될 수도 있다.
+  메모리 누수를 방치하면 잠도 못자고 눈이 붉게 충혈된 채로 에너지 음료를 마셔가며 밤새워 디버깅하면서 저주를 내뱉는 자신을 발견할지도 모른다.
+  */
+  // DOM 이벤트에 연결하기 위한 라이프사이클 이벤트 사용하기
+  class Radio extends React.Component {
+    constructor(porps) {
+      super(props)
+      this.handleResize = this.handleResize.bind(this)
+      let order = props.order
+      let i = 1
+      // 스타일을 상태에 저장한다.
+      this.state = {
+        outerStyle: this.getStyle(4, i),
+        innerStyle: this.getStyle(1, i),
+        selectedStyle: this.getStyle(2, i),
+        taggerStyle: {top: order*20, width: 25, height: 25}
+      }
+    }
+    // 함수를 사용하여 변경되는 너비와 승수에 따라 여러 가지 스타일을 생성한다.
+    getStyle(i, m) {
+      let value = i*m
+      return {
+        top: value,
+        bottom: value,
+        left: value,
+        right: value
+      }
+    }
+    componentDidMount() {
+      window.addEventListener('resize', this.handleResize)  // 미지원 window 이벤트 리스너를 등록한다.
+    }
+    componentWillUnmount() {
+      window.removeEventListener('resize', this.handleResize) // 미지원 window 이벤트 리스너를 제거한다.
+    }
+    handleResize(event) { // 새로운 창 크기에 따라 라디오 버튼의 크기를 조절하는 함수를 구현한다.
+      let w = 1 + Math.round(window.innerWidth / 300)
+      this.setState({
+        taggerStyle: {top: this.props.order*w*10, width: w*10, height: w*10},
+        textStyle: {left: w*13, fontSize: 7*w}
+      })
+    }
+  }
+  /*
+  헬퍼 함수인 getStyle()은 top, bottom, left, right 같은 CSS 스타일의 반복을 추상화하여 창 너비에 따라 다른 값들을 반환한다.
+  이런 이유로 getStyle()은 값과 승수 m을 전달받아 픽셀을 반환한다.(React에서는 CSS에 숫자를 사용하면 픽셀로 바뀐다).
+
+  그 외의 코드는 간단하다. 상태와 속성을 이용하여 네 개의 <div /> 엘리먼트를 렌더링하는 render() 메서드를 구현하면 된다.
+  constructor()에서 각각 특별한 스타일을 선언하고 있다.
+  */
+  // 상태 값을 스타일에 이용해서 엘리먼트 크기 변경하기
+  render() {
+    return <div>
+      <div className="radio-tagger" style={this.state.taggerStyle}>
+        <input type="radio" name={this.props.name} id={this.props.id} />
+        <label htmlFor={this.props.id}>
+          <div className="radio-text" style={this.state.textStyle}> {this.props.label}</div>
+          <div className="radio-outer" style={this.state.outerStyle}>
+            <div className="radio-inner" style={this.state.innerStyle}>
+              <div className="radio-selected" style={this.state.selectedStyle}></div>
+            </div>
+          </div>
+        </label>
+      </div>
+    </div>
+  }
+  /*
+  라디오 컴포넌트 구현을 완료했다. 우리가 살펴본 예제의 요점은 컴포넌트 라이프사이클 이벤트를 이용하면,
+  React가 지원하지 않는 이벤트 리스너도 생성할수 있다는 점이다.
+  예제에서는 window를 이용했다. 이것은 React 이벤트 리스너가 작동하는 것과 유사하다. 
+  이 장의 앞에서 살펴본 것처럼 React는 이벤트를 document에 등록한다.
+  별도로 추가한 이벤트 리스너는 어마운팅 이벤트에서 제거해야 한다.
+  */
+```
+
+### React를 다른 라이브러리와 통합하기: jQuery UI 이벤트
+```
+  React는 표준 DOM 이벤트를 제공한다. 그렇지만 만약에  비표준 이벤트를 사용하는 라이브러리와 통합해야 한다면 어떻게 해야 할까?
+  예를 들어 슬라이더 제어 요소 처럼 슬라이드를 사용하는 jQuery 컴포넌트가 있다고 가정해보자. React 위젯을 jQuery 옆에 통합하려고 한다.
+  React에서 제공하지 않는 DOM 이벤트는 컴포넌트 라이프사이클 이벤트인 componentDidMount와 componentWillUnmount에서 등록할수 있다.
+
+  라이프사이클 이벤트의 종류를 보면 알 수 있겠지만, 컴포넌트가 마운팅된 후에 이벤트 리스너를 등록했다가 언마운팅할 때 제거한다.
+  이벤트 리스너 제거는 청소라고 할 수 있는데, 이벤트 리스너를 제거하지 않으면 충돌을 일으키거나 성능 문제를 일으킬 수도 있으므로
+  중요한 작업이다(이벤트 핸들러를 등록한 DOM 노드가 없으면 잠재적으로 메모리 누수의 위험이 있다).
+
+  예를 들어 음악 스트리밍 회사에서 근무하면서 새로운 버전의 웹 플레이어에 쓸 음량 조절기를 구현한다고 가정해 보자.
+  오래된 jQuery 슬라이더에 버튼과 라벨을 추가해야 할 것이다.
+
+  숫자 값이 있는 라벨을 구현하고, 버튼 두 개를 이용해서 음량을 1씩 높이거나 줄이려고 한다.
+  이 아이디어는 모든 요소가 함께 동작하게 하는 것이다.
+  만약 사용자가 슬라이더에서 핀을 좌우로 움직이면, 숫자 값과 버튼 값도 함께 변경되어야 한다.
+  같은 방법으로 사용자는 버튼이나 슬라이더의 핀을 좌우로 움직일 수 있어야 한다.
+  즉 단순한 슬라이더가 아니라 위젯을 만든다.
+```
+
+#### 버튼 통합하기
+```javascript
+  /*
+  통합을 위해서는 두 가지 방법을 고려할 수 있다. 
+  첫 번째로 jQuery 슬라이더를 위한 이벤트를 React 컴포넌트에서 등록하는 방법이다.
+  두 번째는 winodw를 이용하는 것이다.
+
+  Note: 첫번째 방법으로 버튼을 통합하면 강력하게 결합되어 객체가 서로 의존하게 된다.
+        일반적으로 강력하게 결합된 패턴은 피하는 것이 좋다.
+        이 방법을 살펴본 후에 라벨을 통합하면서 느슨한 결합을 이용한 구현을 살펴보자.
+
+  jQuery 슬라이더에서 값이 바뀌어 slide 이벤트가 발생하면, 버튼에 있는 텍스트 값을 변경해야 한다.
+  componentDidMount에 jQuery 슬라이더에 대한 이벤트 리스너를 등록한 후, slide 이벤트가 발생하면 
+  React 컴포넌트에 있는 handleSlide() 메서드를 실행한다. 
+  slide 이벤트 값 변경에 따라 slideValue 상태 값을 변경한다.
+  */
+  // jQuery 플러그인의 이벤트를 이용한 통합
+  class SliderButton extends React.Component {
+    constructor(props) {
+      super(props)
+      this.state = {sliderValue: 0}
+    }
+    handleSlide(event, ui) {
+      this.setState({sliderValue: ui.value})
+    }
+    handleChange(value) {
+      return () => {
+        $('#slider').slider('value', this.state.sliderValue + value)
+        this.setState({sliderValue: this.state.sliderValue + value})
+      }
+    }
+    componentDidMount() {
+      $('#slider').on('slide', this.handleSlide)
+    }
+    componentWillUnmount() {
+      $('#slider').off('slide', this.handleSlide)
+    }
+  }
+  /*
+  SliderButton의 render() 메서드에는 onClick 이벤트가 있는 버튼이 두 개 있다.
+  disabled 속성은 동적으로 정해져서, 그림 6-15처럼 음량을 0보다 작게 하거나 100보다 크게 할 수 없다.
+  className은 Bootstrap에서 사용하는 CSS 클래스명이다.
+  */
+  // 슬라이더 버튼 렌더링
+  render() {
+    return <div>
+      <button disabled={(this.state.slideVale<1)?true:false}
+        className="btn default-btn"
+        onClick={this.handleChange(-1)}>
+          1 Less ({this.state.sliderValue-1})
+      </button>
+      <button disabled={(this.state.sliderValue>99) ? true : false}
+        className="btn default-btn"
+        onClick={this.handleCahnge(1)}
+      >
+        1 More ({this.state.sliderValue + 1})
+      </button>
+    </div>
+  }
+  /*
+  결과적을 최소 0, 최대 100 사이인 음량 범위를 벗어나려고 하면 버튼에 disabled 속성이 적용된다.
+  예를 들어 음량이 0이라면 음량 감소 버튼이 비활성화 된다.
+  슬라이더를 드래그하면 버튼에 있는 텍스트가 바뀌고 필요에 따라 비활성화 또는 활성화되는 것을 확인할 수 있다.
+  handleChange()에서 슬라이더를 호출하므로 버튼을 클릭하면 슬라이더가 움직이는 것을 확인할 수 있다.
+  SliderValue 컴포넌트에서 value 라벨을 구현한다.
+  */
 ```

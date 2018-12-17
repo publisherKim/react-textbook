@@ -265,4 +265,46 @@
     }
   }
 
+  /*
+  체크박스도 라디오 버튼과 비슷한 방법을 사용한다. checked 속성을 사용하고, 상태에 불 값을 지정한다.
+  다음예제 코드에서 불 값을 checkboxGroup 상태에 저장했다.
+  */
+  class Content extends React.Component {
+    constructor(props) {
+      super(props)
+      this.handleCheckbox = this.handleCheckbox.bind(this)
+      // ...
+      this.state = {
+        // ...
+        checkboxGroup: {
+          node: false,
+          react: true,
+          express: false,
+          mongodb: false
+        }
+      }
+    }
+  }
+  //  생성자에서 바인딩한 이벤트 핸들러가 현재 값을 가져오고, event.target.value를 이용해서 true 또는 false를 추가하여 상태를 결정한다.
+  handleCheckbox(event) {
+    let obj = Object.assign(this.state.checkboxGroup)
+    obj[event.target.value] = event.target.checked  // --------- true || false
+    this.setState({checkoxGroup: obj})
+  }
+  /*
+  라디오 버튼에서 선택 값이 하나이므로 상태에서 할당할 필요가 없다. 
+  따라서 빈 객체를 사용할 수 있었다. 그러나 체크박스는 다르다.
+  선택 값이 여러가지이므로 교체하는 대신 병합해야 한다.
+
+  자바스크립트에서는 객체는 참조를 통해 전달 및 할당한다. 따라서 obj = this.state.checkboxGroup에서 obj는 정말로 상태다.
+  상태는 직접 변경하지 않는다는 점을 기억하고 있을 것이다. 
+  잠재적인 충돌을 방지하기 위해서 Object.assign()을 이용해 값을 할당하는 것이 좋다.
+  이 기법을 복제라고 한다. 
+  JSON을 이용하는 방법은 조금 덜 효과적이며 꼼수에 가깝다.
+  */
+  cloneData = JSON.parse(JSON.stringify(originalData))
+  /*
+  상태에서 객체 대신 배열을 사용하는 경우에 값을 할당해야 한다면 clonedArray = Array.from(originArray) 또는 clonedArray = originArray.slice()를 사용할 수 있다.
+  handleCheckbox() 이벤트 핸들러를 사용해서 event.target.value에서 값을 가져올 수 있다.
+  */
 ```

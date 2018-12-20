@@ -307,4 +307,159 @@
   상태에서 객체 대신 배열을 사용하는 경우에 값을 할당해야 한다면 clonedArray = Array.from(originArray) 또는 clonedArray = originArray.slice()를 사용할 수 있다.
   handleCheckbox() 이벤트 핸들러를 사용해서 event.target.value에서 값을 가져올 수 있다.
   */
+
+  /*
+  <textarea> 요소
+  <textarea> 요소는 노트, 블로그 게시글, 코드 조각처럼 장문 입력을 감지하고 보여주기 위해 사용된다.
+  일반적인 HTML에서 <textarea>는 inner HTML을 사용하여(자식을 말한다) 값을 보여준다.
+  */
+  <textarea>
+    With the right pattern, application...
+  </textarea>
+  /*
+  반면에 React는 value 속성을 사용한다. 
+  이런 관점에서 보면 <textarea>의 자식으로 텍스트를 넣거나 inner HTML로 값을 설정하는 것은 안티패턴이다.
+  React는 <textarea>에 자식이 있는 경우에는 자식으로 입력된 텍스트를 기본값으로 사용한다.
+  */
+  // Anti-pattern: AVOID doing this 
+  <textarea name="description">{this.state.description}</textarea>
+  // 대신에 <textarea>에 value 속성을 사용하는 것을 권장한다.
+  render() {
+    return <textarea name="description" value={this.state.description}></textarea>
+  }
+  // <input> 요소와 마찬가지로 변경을 감지하려면 onChange를 사용한다.
+
+  /*
+  <select>와<option> 요소
+  <select>와 <option> 영역은 사용자가 미리 입력된 값 목록에서 한 가지 또는 여러 가지 값을 선택할 수 있는 훌륭한 UX를 제공한다.
+  <select> 요소도 React와 일반 HTML 간에 동작의 차이가 있다. 예를 들면 일반적인 HTML에서는 선택된 요소의 순서를 확인하기 위해 selectDOMNode.selectedIndex를 사용한다. 그렇지만 React에서는 다음 예제 코드처럼 value 속성을 사용한다.
+  */
+  // 폼 요소 렌더링
+  constructor(props) {
+    super(props)
+    this.state = {selectedValue: 'node'}
+  }
+  handleSelectChange(event) {
+    this.setState({selectedValue: event.target.value})
+  }
+  ...
+  render() {
+    return <from>
+      <select
+        value={this.state.selectedValue}
+        onChange={this.handleSelectChange}
+      >
+        <option vlaue="ruby">Ruby</option>
+        <option value="node">Node</option>
+        <option value="python">Python</option>
+      </select>
+    </from>
+  }
+  /*
+  이 코드는 드롭다운 메뉴를 렌더링하고 node를 선택한다.
+  constructor()에서 상태를 설정해 준다.
+
+  다중 선택 요소를 사용해야 하는 경우도 있다. React에서 JSX를 작성할 때 별도의 값을 주지 않고
+  multiple 속성만 작성하면 React가 true로 처리한다. 또는 명시적으로 multiple={true}라고 값을 주어도 된다.
+
+  Tip: 일관성을 유지하고 혼란을 막기 위해 모든 불 값을 ''가 아니라 {}로 감쌌다. 'true'와 {true}의 결과는 같다.
+  그렇지만 "false"라고 입력하면 true가 된다. 자바스크립트에서는 문자열 "false"가 참 값이라 true로 처리되기 때문이다.
+
+  여러 항목을 기본으로 선택하려면 <select>의 value 속성에 배열로 값을 전달한다. 
+  예를 들어 다음 예제 코드에서는 Meteor와 React를 선택했다.
+  */
+  <select multiple={true} value={["meteor", "react"]}>
+    <option value="meteor">Meteor</option>
+    <option value="react">React</option>
+    <option value="jQuery">jQuery</option>
+  </select>
+  /*
+  전반적으로 React에서 폼 요소를 정의하는 것은 value를 더 자주 사용한다는 점을 제외하면 일반적인 HTML과 크게 다르지 않다.
+  이런 일관성이 좋다. 그렇지만 폼 요소를 정의하는 것이 절반이라면, 다른 절반은 값의 변경을 감지하는 것이다.
+  */
+```
+
+#### 변경 감지하기
+```javascript
+  /*
+  앞서 언급한 것처럼 폼 요소의 변경을 감지할 때는 onChange 이벤트 리스너를 이용한다.
+  onChange 이벤트는 일반적인 DOM의 onInput 이벤트를 대체한다. 
+  일반적인 HTML DOM의 onInput과 같은 동작이 필요한 경우네는 React의 onInput 이벤트를 사용할 수 있다. 
+  반면에 React의 onChange 이벤트는 일반적인 DOM의 onChange 이벤트와 완벽하게 동일하지 않다.
+  일반적인 DOM의 onChange 이벤트는 요소가 포커스를 잃었을 때만 발생하지만, 
+  React의 onChange 이벤트는 모든 새로운 입력에 대해 발생한다.
+  onChange 이벤트를 발생시키는 요인은 요소에 따라 차이가 있다.
+    - <input>, <textarea>, <select>: value가 변경될 때 onChange 이벤트가 발생한다.
+    - <input>, 체크박스와 라디오 버튼: checked가 변경될 때 onChange 이벤트가 발생한다.
+
+  이 분류에 따라 value를 읽는 방법이 다르다. 
+  이벤트 핸들러의 인자로는 합성 이벤트(SyntheticEvent)를 받는다.
+  요소에 따라 event.target은 value, checked, selected 같은 값을 갖는다.
+
+  변경을 감지하려면 컴포넌트에 이벤트 핸들러를 정의하고(JSX의 {}에 인라인으로 작성할 수도 있다)
+  onChange 속성으로 이벤트 핸들러를 전달해주면 된다.
+  */
+  // 폼 요소의 렌더링과 변경 감지하기
+  handleChange(event) {
+    console.log(event.target.value)
+  }
+  render() {
+    return <input
+      type="text"
+      onChange={this.handleChange}
+      defaultValue="hi@azat.co" />
+  }
+  /*
+  흥미로운 점은 onChange를 정의하지 않고 value만 입력하면 React가 경고를 보내고 요소를 읽기 전용으로 만든다는 점이다.
+  읽기 전용 영역이 필요한 경우라면 명시적으로 readOnly 속성을 추가하는 것이 좋다.
+  이렇게 하면 경고도 제거할 수 있고, 코드를 보는 다른 개발자도 입력 영역이 읽기 전용으로 설계되었다는 것을 알 수 있다.
+  값을 명시적으로 설정하려면 readOnly={true}라고 작성하거나, 
+  값 없이 readOnly 속성만 작성해도 React에서 해당 속성의 값을 true로 간주한다.
+  */
+  // 요소의 변경을 감지하려면 컴포넌트 상태에 저장할 수 있다.
+  handleChange(event) {
+    this.setState({emitValue: event.target.value})
+  }
+  /*
+  언제가는 정보를 서버나 다른 컴포넌트로 보내야 한다. 보낼 때는 값을 상태에 깔끔하게 정리해야 한다.
+  예를 들어 대출 신청서 폼을 만들고, 사용자 이름, 주소, 전화번호, 주민등록번호를 입력받는다고 가정해보자.
+  각 입력 영역이 각자의 변경 사항을 처리한다.
+  폼의 맨 아래에는 제출 버튼을 넣어서 입력으로 저장한 상태를 서버로 보낸다.
+  */
+  // 폼 요소 렌더링하기
+  constructor(props) {
+    super(props)
+    this.handleInput = this.handleInput.bind(this)
+    this.handleSubmit = this.handleSubmit.bind(this)
+    ...
+  }
+  handleFirstNameChange(event) {
+    this.setState({fristName: event.target.value})  // 이름(firstName) 영역의 변경 사항을 감지하여 상태에 저장한다.
+  }
+  ...
+  handleSubmit() {
+    fetch(this.props['data-url'], {method: 'POST', body: JSON.stringify(this.state)}) // 프라미스 기반의 Fetch API를 사용해서 data-url 속성으로 전달받은 URL에 데이터를 전송한다.
+      .then(res => response.json())
+      .then(data => console.log('Submitted: ', data))
+  }
+  render() {
+    return <form>
+      <input name="firstName" 
+        onChange={this.handleFirstNameChange}
+        type="text"
+      />
+      ...
+      <input 
+        type="button"
+        onClick={this.handleSubmit}     // 이벤트 핸들러를 정의하여 제출 버튼 이벤트를 처리한다.
+        value="submit"
+      />
+    </form>
+  }
+  /*
+  Note: Fetch API는 프라미스 기반의 AJAX/XHR 요청을 수행할 수 있는 실험적인 브라우저 내장 메서드다.
+  사용법과 지원 여부에 대해서는 http://mng.bz/mbMe에서 확인할 수 있다.
+
+  요소의 정의, 변경 이벤트 감지, 값을 표시하기 위한 상태 갱신에 대해 살펴 보았다.
+  */
 ```

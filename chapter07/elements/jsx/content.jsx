@@ -1,8 +1,10 @@
 class Content extends React.Component {
   constructor(props) {
     super(props);
-    this.handleRadio = this.handleRadio.bind(this);
-    this.handleCheckbox = this.handleCheckbox.bind(this);
+    this.handleRadio = this.handleRadio.bind(this)
+    this.handleCheckbox = this.handleCheckbox.bind(this)
+    this.handleSelectChange = this.handleSelectChange.bind(this);
+    this.handleChange = this.handleChange.bind(this)
     this.state = {
       radioGroup: {
         angular: false,
@@ -14,8 +16,9 @@ class Content extends React.Component {
         react: true,
         express: false,
         mongodb: false
-      }
-    };
+      },
+      selectedValue: 'node'
+    }
   }
   handleRadio(event) {
     let obj = {};
@@ -26,6 +29,13 @@ class Content extends React.Component {
     let obj = Object.assign(this.state.checkboxGroup)
     obj[event.target.value] = event.target.checked
     this.setState({checkboxGroup: obj})
+  }
+  handleSelectChange(event) {
+    this.setState({ selectedValue: event.target.value })
+    console.log(event.target.value, event.target)
+  }
+  handleChange(event) {
+    console.log(event.target.value)
   }
   render() {
     return (
@@ -74,6 +84,19 @@ class Content extends React.Component {
           value="MongoDB"
           checked={this.state.checkboxGroup["MongoDB"]}
           onChange={this.handleCheckbox}
+        />
+        <select
+          value={this.state.selectedValue}
+          onChange={this.handleSelectChange}
+        >
+          <option value="ruby">Ruby</option>
+          <option value="node">Node</option>
+          <option value="python">Python</option>
+        </select>
+        <input
+          type="text"
+          onChange={this.handleChange}
+          defaultValue="hi@azat.co"
         />
       </from>
     );

@@ -10,6 +10,8 @@ class Content extends React.Component {
     this.handleFirstNameChange = this.handleFirstNameChange.bind(this)
 
     this.state = {
+      description: `With the right pattern, applications will be more scalable and easier to maintain.
+If you aspire one day to become a Node.js architect (or maybe you're already one and want to extend your knowledge), this presentation is for you.`,
       radioGroup: {
         angular: false,
         react: true,
@@ -61,6 +63,18 @@ class Content extends React.Component {
   render() {
     return (
       <from>
+        <textarea
+          name="description"
+          defaultValue={this.state.description}
+          onChange={this.handleChange}
+        ></textarea>
+        <hr />
+        <textarea
+          name="description1"
+          defaultValue={"Pro Express.js is for the reader\nwho wants to quickly get up-to-speed with Express.js, \nthe flexible Node.js framework"}
+          onChange={this.handleChange}
+        ></textarea>
+        <hr />
         <input
           type="radio"
           name="radioGroup"
@@ -82,6 +96,7 @@ class Content extends React.Component {
           checked={this.state.radioGroup["polymer"]}
           onChange={this.handleRadio}
         />
+        <hr />
         <input type="checkbox" 
           name="checkboxGroup"
           value="node"
@@ -106,6 +121,7 @@ class Content extends React.Component {
           checked={this.state.checkboxGroup["MongoDB"]}
           onChange={this.handleCheckbox}
         />
+        <hr />
         <select
           value={this.state.selectedValue}
           onChange={this.handleSelectChange}
@@ -114,6 +130,7 @@ class Content extends React.Component {
           <option value="node">Node</option>
           <option value="python">Python</option>
         </select>
+        <hr />
         <input
           type="text"
           onChange={this.handleChange}

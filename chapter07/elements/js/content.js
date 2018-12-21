@@ -10,6 +10,8 @@ class Content extends React.Component {
     this.handleFirstNameChange = this.handleFirstNameChange.bind(this);
 
     this.state = {
+      description: `With the right pattern, applications will be more scalable and easier to maintain.
+If you aspire one day to become a Node.js architect (or maybe you're already one and want to extend your knowledge), this presentation is for you.`,
       radioGroup: {
         angular: false,
         react: true,
@@ -63,6 +65,18 @@ class Content extends React.Component {
     return React.createElement(
       'from',
       null,
+      React.createElement('textarea', {
+        name: 'description',
+        defaultValue: this.state.description,
+        onChange: this.handleChange
+      }),
+      React.createElement('hr', null),
+      React.createElement('textarea', {
+        name: 'description1',
+        defaultValue: "Pro Express.js is for the reader\nwho wants to quickly get up-to-speed with Express.js, \nthe flexible Node.js framework",
+        onChange: this.handleChange
+      }),
+      React.createElement('hr', null),
       React.createElement('input', {
         type: 'radio',
         name: 'radioGroup',
@@ -84,6 +98,7 @@ class Content extends React.Component {
         checked: this.state.radioGroup["polymer"],
         onChange: this.handleRadio
       }),
+      React.createElement('hr', null),
       React.createElement('input', { type: 'checkbox',
         name: 'checkboxGroup',
         value: 'node',
@@ -108,6 +123,7 @@ class Content extends React.Component {
         checked: this.state.checkboxGroup["MongoDB"],
         onChange: this.handleCheckbox
       }),
+      React.createElement('hr', null),
       React.createElement(
         'select',
         {
@@ -130,6 +146,7 @@ class Content extends React.Component {
           'Python'
         )
       ),
+      React.createElement('hr', null),
       React.createElement('input', {
         type: 'text',
         onChange: this.handleChange,

@@ -3,8 +3,12 @@ class Content extends React.Component {
     super(props);
     this.handleRadio = this.handleRadio.bind(this)
     this.handleCheckbox = this.handleCheckbox.bind(this)
-    this.handleSelectChange = this.handleSelectChange.bind(this);
+    this.handleSelectChange = this.handleSelectChange.bind(this)
     this.handleChange = this.handleChange.bind(this)
+    this.handleInput = this.handleInput.bind(this)
+    this.handleSubmit = this.handleSubmit.bind(this)
+    this.handleFirstNameChange = this.handleFirstNameChange.bind(this)
+
     this.state = {
       radioGroup: {
         angular: false,
@@ -17,9 +21,12 @@ class Content extends React.Component {
         express: false,
         mongodb: false
       },
-      selectedValue: 'node'
+      selectedValue: 'node',
+      firstName: ''
     }
+
   }
+
   handleRadio(event) {
     let obj = {};
     obj[event.target.value] = event.target.checked;
@@ -31,12 +38,26 @@ class Content extends React.Component {
     this.setState({checkboxGroup: obj})
   }
   handleSelectChange(event) {
+    console.log("select: ", event.target.value, event.target);
     this.setState({ selectedValue: event.target.value })
-    console.log(event.target.value, event.target)
   }
   handleChange(event) {
     console.log(event.target.value)
   }
+  handleFirstNameChange(event) {
+    console.log('firstName: ', event.target.value)
+    this.setState({ firstName: event.target.value})
+  }
+  handleInput(event) {
+    console.log('onIjnput event: ', event.target.value, event.target.checked)
+  }
+  handleSubmit() {
+    console.log(event.target.value, event.target.checked)
+    fetch(this.props['data-url'], {method: 'POST', body: JSON.stringify(this.state)})
+      .then((response)=>{return response.json()})
+      .then((data)=>{console.log('Submitted: ', data)})
+  }
+
   render() {
     return (
       <from>
@@ -98,6 +119,17 @@ class Content extends React.Component {
           onChange={this.handleChange}
           defaultValue="hi@azat.co"
         />
+        <hr />
+        <h2>input: first name [text]</h2>
+        <input type="text" 
+          name="first-name" 
+          value={this.state.firstName}
+          onChange={this.handleFirstNameChange} />
+        <hr />
+        <h2>input: button</h2>
+        <input type="button" defaultValue="Send" onClick={this.handleSubmit} />
+        <hr />
+        <input type="text" name="title" value="Mr." readOnly />
       </from>
     );
   }

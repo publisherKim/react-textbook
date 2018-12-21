@@ -5,6 +5,10 @@ class Content extends React.Component {
     this.handleCheckbox = this.handleCheckbox.bind(this);
     this.handleSelectChange = this.handleSelectChange.bind(this);
     this.handleChange = this.handleChange.bind(this);
+    this.handleInput = this.handleInput.bind(this);
+    this.handleSubmit = this.handleSubmit.bind(this);
+    this.handleFirstNameChange = this.handleFirstNameChange.bind(this);
+
     this.state = {
       radioGroup: {
         angular: false,
@@ -17,9 +21,11 @@ class Content extends React.Component {
         express: false,
         mongodb: false
       },
-      selectedValue: 'node'
+      selectedValue: 'node',
+      firstName: ''
     };
   }
+
   handleRadio(event) {
     let obj = {};
     obj[event.target.value] = event.target.checked;
@@ -31,88 +37,123 @@ class Content extends React.Component {
     this.setState({ checkboxGroup: obj });
   }
   handleSelectChange(event) {
+    console.log("select: ", event.target.value, event.target);
     this.setState({ selectedValue: event.target.value });
-    console.log(event.target.value, event.target);
   }
   handleChange(event) {
     console.log(event.target.value);
   }
+  handleFirstNameChange(event) {
+    console.log('firstName: ', event.target.value);
+    this.setState({ firstName: event.target.value });
+  }
+  handleInput(event) {
+    console.log('onIjnput event: ', event.target.value, event.target.checked);
+  }
+  handleSubmit() {
+    console.log(event.target.value, event.target.checked);
+    fetch(this.props['data-url'], { method: 'POST', body: JSON.stringify(this.state) }).then(response => {
+      return response.json();
+    }).then(data => {
+      console.log('Submitted: ', data);
+    });
+  }
+
   render() {
     return React.createElement(
-      "from",
+      'from',
       null,
-      React.createElement("input", {
-        type: "radio",
-        name: "radioGroup",
-        value: "angular",
+      React.createElement('input', {
+        type: 'radio',
+        name: 'radioGroup',
+        value: 'angular',
         checked: this.state.radioGroup["angular"],
         onChange: this.handleRadio
       }),
-      React.createElement("input", {
-        type: "radio",
-        name: "radioGroup",
-        value: "react",
+      React.createElement('input', {
+        type: 'radio',
+        name: 'radioGroup',
+        value: 'react',
         checked: this.state.radioGroup["react"],
         onChange: this.handleRadio
       }),
-      React.createElement("input", {
-        type: "radio",
-        name: "radioGroup",
-        value: "polymer",
+      React.createElement('input', {
+        type: 'radio',
+        name: 'radioGroup',
+        value: 'polymer',
         checked: this.state.radioGroup["polymer"],
         onChange: this.handleRadio
       }),
-      React.createElement("input", { type: "checkbox",
-        name: "checkboxGroup",
-        value: "node",
+      React.createElement('input', { type: 'checkbox',
+        name: 'checkboxGroup',
+        value: 'node',
         checked: this.state.checkboxGroup["node"],
         onChange: this.handleCheckbox
       }),
-      React.createElement("input", { type: "checkbox",
-        name: "checkboxGroup",
-        value: "React",
+      React.createElement('input', { type: 'checkbox',
+        name: 'checkboxGroup',
+        value: 'React',
         checked: this.state.checkboxGroup["React"],
         onChange: this.handleCheckbox
       }),
-      React.createElement("input", { type: "checkbox",
-        name: "checkboxGroup",
-        value: "Express",
+      React.createElement('input', { type: 'checkbox',
+        name: 'checkboxGroup',
+        value: 'Express',
         checked: this.state.checkboxGroup["Express"],
         onChange: this.handleCheckbox
       }),
-      React.createElement("input", { type: "checkbox",
-        name: "checkboxGroup",
-        value: "MongoDB",
+      React.createElement('input', { type: 'checkbox',
+        name: 'checkboxGroup',
+        value: 'MongoDB',
         checked: this.state.checkboxGroup["MongoDB"],
         onChange: this.handleCheckbox
       }),
       React.createElement(
-        "select",
+        'select',
         {
           value: this.state.selectedValue,
           onChange: this.handleSelectChange
         },
         React.createElement(
-          "option",
-          { value: "ruby" },
-          "Ruby"
+          'option',
+          { value: 'ruby' },
+          'Ruby'
         ),
         React.createElement(
-          "option",
-          { value: "node" },
-          "Node"
+          'option',
+          { value: 'node' },
+          'Node'
         ),
         React.createElement(
-          "option",
-          { value: "python" },
-          "Python"
+          'option',
+          { value: 'python' },
+          'Python'
         )
       ),
-      React.createElement("input", {
-        type: "text",
+      React.createElement('input', {
+        type: 'text',
         onChange: this.handleChange,
-        defaultValue: "hi@azat.co"
-      })
+        defaultValue: 'hi@azat.co'
+      }),
+      React.createElement('hr', null),
+      React.createElement(
+        'h2',
+        null,
+        'input: first name [text]'
+      ),
+      React.createElement('input', { type: 'text',
+        name: 'first-name',
+        value: this.state.firstName,
+        onChange: this.handleFirstNameChange }),
+      React.createElement('hr', null),
+      React.createElement(
+        'h2',
+        null,
+        'input: button'
+      ),
+      React.createElement('input', { type: 'button', defaultValue: 'Send', onClick: this.handleSubmit }),
+      React.createElement('hr', null),
+      React.createElement('input', { type: 'text', name: 'title', value: 'Mr.', readOnly: true })
     );
   }
 }

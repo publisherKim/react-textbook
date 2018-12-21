@@ -584,7 +584,8 @@
         <div>
           <input 
           type="text" onChange={this.handleChange} /*input에 value를 설정하지 않고 이벤트 리스너만 설정한다.*/placeholder="Eloquent TypeScript: Myth or Reality" />
-          <span>{this.state.textbook}</span>                    // </span>을 이용해서 handleChange() 메서드에서 설정한 상태 변수를 출력한다.
+          <span>{this.state.textbook}</span>
+          // span을 이용해서 handleChange() 메서드에서 설정한 상태 변수를 출력한다.
         </div>
       )
     }

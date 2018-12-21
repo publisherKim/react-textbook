@@ -463,3 +463,137 @@
   요소의 정의, 변경 이벤트 감지, 값을 표시하기 위한 상태 갱신에 대해 살펴 보았다.
   */
 ```
+
+#### 대출 신청서의 계좌번호 영역 만들기
+```jsx
+  /*
+  대출 신청서를 계속 만들어보자. 대출이 승인되면 사용자는 대출금을 이체받을 계좌번호를 입력해야 한다.
+  새로 배운 기술을 바탕으로 계좌번호 영역 컴포넌트를 구현해 보자.
+  React에서 폼을 다룰 때 가장 적합한 방법인 제어 엘리먼트를 사용한다.
+
+  예제 코드 7.6 컴포넌트는 그림 7-8처럼 계좌번호 영역에 숫자만 입력할 수 있어야 한다.
+  입력을 숫자(0~9)로 제한하려면 제어 컴포넌트에서 숫자가 아닌 입력 값을 모두 제거해야 한다.
+  이벤트 핸들러는 입력 값을 걸러낸 후에만 상태를 갱신한다.
+  */
+  // 제어 컴포넌트 구현하기
+  class Content extends React.Component {
+    constructor(props) {
+      super(props)
+      this.handleChange = this.handleChange.bind(this)
+      this.state = { accountNumber: '' }  // 계좌번호 초깃값으로 빈 문자열을 설정한다.
+    }
+    handleChange(event) {
+      console.log('Typed: ', event.target.value)  // 콘솔에 입력한 내용을 그대로 보여준다.
+      this.setState({ accountNumber: event.target.value.replace(/[^0-9]/ig/, '')})  // 입력 값에서 숫자만 걸러낸 후 상태를 갱신한다.
+    }
+    render() {
+      return <div>
+        Account Nubmer:
+        <input
+          type="text"
+          onChange={this.handleChange}
+          placeholder="123456"
+          value={this.state.accountNumber}
+        />
+        <br />  
+        <span>{this.state.accountNumber.length > 0 ? 'You entered: ' + this.state.accountNumber: ''}</span>
+      </div>
+    }
+  }
+  /*
+  정규표현식과 문자열의 replace 메서드를 이용해서 숫자가 아닌 입력 값을 제거했다. replace(/[^0-9]/ig, '')는 복잡하지 않은
+  정규표현식을 사용한 메서드로 숫자가 아닌 입력 값을 빈 문자열로 치환한다.
+  ig는 대소문자 구분을 하지 않는 것.
+  문자열 전체에서 일치 항목을 찾는 것을 의미한다.
+
+  render()의 입력 영역은 value={this.state.accountNumber} 설정되어 있으므로 제어 컴포넌트다. 
+  예제의 계좌번호 영역을 브라우저에서 직접 입력해보면 숫자만 입력할 수 있는데, React가 새로운 상태를 숫자만 있는 값으로 걸러내어 설정하기 때문이다.
+  그림 7-9에서 확인할 수 있다.
+  React에서 입력 요소와 폼을 다루는 가장 좋은 방법을 통해 입력 값 유효성 검사를 구현할 수 있으며, 앱을 원하는 모습대로 작동하도록 강제할 수 있다.
+
+  Note: 계좌번호 컴포넌트에서 프론트엔드 유효성 검사를 구현 했는데, 이것으로는 서버로 보내는 XHR 요청에 해커가 악의적인 데이터를 입력하는 것을 방지할 수는 없다.
+  따라서 서버나 백엔드, ORM/ODM(https://en.wikipedia.org/Object-relational_mapping) 같은 비즈니스 레이어에서는 입력 값에 대한 적절한 유효성 검사 처리가 필요하다.
+  */
+```
+
+### 폼을 다루는 다른 방법
+```
+  제어 폼 요소를 사용하는 방법이 가장 좋긴 하다.
+  그렇지만 이 방법은 직접 변경을 감지하고 상태를 갱신해야 하므로 추가 작업이 필요하다.
+  value, checked, selected 속성 값을 문자열 또는 React의 속성이나 상태를 이용해서 정의해야 React가 요소를 제어할 수 있다.
+
+  또한, 폼 요소는 value 속성이 상태나 정적인 값으로 설정되어 있지 않을 때는 React가 제어하지 않아도 된다.
+  뷰의 DOM 상태와 React의 내부 상태에 차이가 있을 수 있다는 점을 들어 비제어 컴포넌트를 권장하지 않는다고 설명하기도 했지만,
+  서버에 전달할 간단한 폼을 만들 때는 비제어 컴포넌트가 유용하다.
+  다시 말해 복잡한 사용자 입력과 조작이 많은 UI 요소를 만드는 경우가 아니라면 비제어 패턴을 사용하는 것을 고려해볼 만하다.
+  (이런 패턴을 적용할때는 항상 주의하자. 예외사항은 확실히 점검하고 쓰는 것이 좋다.)
+
+  일반적으로 비제어 컴포넌트를 사용하려면 폼에서 제출 이벤트를 정의해야 한다. 보통 버튼에 onClick 이벤트나 폼의 onSubmit 이벤트를 사용한다.
+  이벤트 핸들러를 추가한 뒤에는 두 가지 방법 중에 선택할 수 있다.
+    - 제어 엘리먼트를 사용할 때처럼 변경을 감지하여 상태에 저장하지만, 상태를 value에 사용하지 않고 제출 시에만 사용하는 방식(이것은 결국 제어하지 않는 방식이다.)
+    - 변경을 감지하지 않는 방식
+
+  첫번째 접근 방법은 간단하다. 같은 이벤트 리스너를 사용해서 상태르 갱신한다. 
+  최종적으로 폼을 제출할 때만 상태를 사용하는 경우 이 방법은 과도한 코딩이 될 수 있다.
+  
+  Warning: React는 여전히 상대적으로 새롭기 때문에, 
+  앱을 개발하고 유지보수하는 실제 경험을 통해 모범 사례가 자리를 잡아가고 있다.
+  추천 방법이 거대한 React 앱을 다년간 유지보수하는 동안 바뀔 수도 있다.
+  비제어 컴포넌트는 의견이 일치되지 않은 회색 지대라고 할 수 있다.
+  아마 이 방식은 안티패턴이니 피해야 한다는 이야기를 들을 수도 있다.
+  나는 편을 가르기보다는 충분한 정보를 제공해서 직접 판단할 수 있도록 도움을 주려고 한다.
+  여러분이 가능한 모든 지식을 활용해서 똑똑하게 판단할 수 있을 거라고 믿기 때문이다.
+  (초보라면 될수 있으면 사용하지 않는것이 좋다. 천재라면 사용해도 된다. 단 자신이 똑똑하다고 쉽게 판별하지 않길 바란다.)
+```
+
+#### 비제어 엘리먼트에서 변경 감지하기
+```jsx
+  /*
+  React에서 비제어 컴포넌트는 value 속성을 React에서 설정하지 않는 것을 의미한다.
+  이 경우 컴포넌트의 내부 값 또는 상태가 컴포넌트의 표현 또는 뷰와 서로 다를 수 있다.
+  컴포넌트 상태는 유효성 검사 같은 논리를 가질 수 있다.
+  비제어 컴포넌트를 사용하는 경우에는 사용자가 폼 요소에 무엇이든 입력할 수 있으므로 뷰와 상태 사이에 차이가 발생한다.
+
+  예를 들어 다음 텍스트 입력 영역은 React에서 value를 설정하지 않았으므로  비제어 컴포넌트다.
+  */
+  render() {
+    return <input type="text" />
+  }
+
+  /*
+  사용자 입력이 즉시 뷰에 렌더링된다. 이것이 좋은 것일까, 나쁜 것일까? 지금부터 이 점을 함께 살펴보자.
+  비제어 컴포넌트에서 변경을 감지하려면 onChange를 사용한다.
+  예를 들어 그림 7-10의 입력 영역은 onChange 이벤트 핸들러인 this.handleChange와 textbook에 대한 참조,
+  입력 영역이 비어 있을 때 회색으로 노출할 placeholder를 속성으로 가지고 있다.
+
+  다음 예제 코드의 handleChange() 메서드는 콘솔에 값을 출력하고, event.target.value를 이용해서 상태를 갱신한다.
+  */
+  // 변경을 감지하는 비제어 엘리먼트
+  class Content extends React.Component {
+    constructor(props) {
+      super(props)
+      this.state = {textbook: ''} // 기본값으로 빈 문자열을 설정한다.
+      this.handleChange = this.handleChange.bind(this)
+    }
+    handleChange(event) {
+      console.log(event.target.value)
+      this.setState({textbook: event.target.value})   // 입력 영역에 변경이 있을 때 상태를 갱신한다.
+    }
+    render() {
+      return (
+        <div>
+          <input 
+          type="text" onChange={this.handleChange} /*input에 value를 설정하지 않고 이벤트 리스너만 설정한다.*/placeholder="Eloquent TypeScript: Myth or Reality" />
+          <span>{this.state.textbook}</span>                    // </span>을 이용해서 handleChange() 메서드에서 설정한 상태 변수를 출력한다.
+        </div>
+      )
+    }
+  }
+  /*
+  React가 사용자가 입력하는 값을 제어하지 않으므로 원하는 내용을 무엇이든 입력할 수 있다.
+  React는 onChange를 통해 새로 입력된 값을 감지해서 상태에 저장만 한다.
+  그러면 그림 7-11처럼 상태의 변경 사항이 <span>에 갱신된다.
+
+  이 방법으로 입력 영역을 위한 이벤트 핸들러를 구현할 수 있다. 이벤트 감지를 아예 하지 않는 방법도 있을까?
+  */
+```

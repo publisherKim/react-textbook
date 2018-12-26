@@ -598,3 +598,171 @@
   이 방법으로 입력 영역을 위한 이벤트 핸들러를 구현할 수 있다. 이벤트 감지를 아예 하지 않는 방법도 있을까?
   */
 ```
+
+#### 비제어 엘리먼트에서 이벤트를 감지하지 않는 경우
+```
+  예를 들어 폼을 제출할 때처럼 모든 값이 필요한 경우에 문제가 있다.
+  변경을 감지하는 방식일때는 모든 데이터가 상태에 저장되어 있다.
+  비제어 엘리먼트에서 변경을 감지하지 않기로 하면 데이터는 DOM에 그대로 남는다.
+  데이터를 자바스크립트 객체로 가져 오려면 그림 7-12처럼 참조를 이용해야 한다. 그림 7-1에서 살펴본 제어 엘리먼트의 흐름을 그림 7-12의 비제어 엘리먼트와 비교해보는것도 좋겠다.
+
+  Note: 제어 컴포넌트 또는 데이터를 감지하는 비제어 컴포넌트를 다룰 때는 데이터가 항상 상태에 저장되어 있다.
+        지금 다루고 있는 부분은 이런 방식에 해당하지 않는다.
+
+  정리하면 변경을 감지하지 않고 비제어 엘리먼트를 사용하려면 다른 엘리먼트에 접근해서 데이터를 가져올 수 있는 방법이 필요하다.
+  
+  p.231 그림 7-12 비제어 엘리먼트를 사용할 때는 변경을 감지하지 않고, 참조를 통해 값에 접근한다.
+  사용자                                    뷰                                                                    서버                                    
+                      1. 입력 ->                        3. 최종이벤트 ->
+                    <-2. 갱신된 뷰                         (감지하지 않은 변경 사항 제출)
+```
+
+#### 값에 참조로 접근하기
+```jsx
+  /*
+  비제어 컴포넌트를 다룰 때는 onChange 같은 이벤트를 이용해 입력을 감지하지 않으므로 refs를 통해 참조로 값에 접근한다.
+  그렇지만 참조가 이 특정 패턴에만 적용되는 것은 아니다. 참조를 사용하는 것은 안티패턴으로 여겨져서 눈살을 찌푸릴 수도 있겠지만,
+  참조 사용이 적합한 상황이라면 어디에나 적용할 수 있다. React 엘리먼트를 적절히 정의한다면 뷰(DOM)의 상태와 내부 상태가 동기화되므로 참조를 사용할 필요가 거의 없다.
+  그렇지만 참조를 이해할 필요는 있으므로 여기서 설명하고자 한다.
+
+  참조를 사용하면 React 컴포넌트의 DOM 요소 또는 노드를 가져올 수 있다.
+  변경을 감지하지 않고 폼 요소의 값을 가져와야 할 때 유용하다.
+  참조를 사용하려면 다음 두 가지 작업이 필요하다.
+    - render 메서드에서 반환하는 엘리먼트의 ref 속성에 문자열을 전달하는 경우 카멜 표기법으로 작성되어 있어야 한다.
+      예를 들어 email: <input ref="userEmail" />처럼 작성한다.
+    - 지정한 이름으로 다른 메서드에서 DOM 인스턴스에 접근한다. 예를 들어 이벤트 핸들러에서 this.refs.NAME이 this.refs.userEmail이다.
+  
+  this.refs.NAME으로 React 컴포넌트의 인스턴스에 접근할 수 있다. 그렇지만 입력 값을 어떻게 확인할 수 있을까? DOM 노드를 가져오는 것이 좀 더 유용하겠다!
+  컴포넌트의 DOM 노드에 접근하려면 ReactDOM.findDOMNode(this.refs.NAME)을 사용한다.
+  */
+  let emailNode = ReactDOM.findDOMNode(this.refs.email)
+  let email = emailNode.value
+
+  // ReactDOM.findDOMNode 메서드 줄이기(좀 더 사용하기 편할수도 있다. 단순한 축약 패턴이지만 유용할듯)
+  let fD = ReactDOM.findDOMNode
+  let email = fD(this.refs.email).value
+  /* 
+  입력 값은 브라우저 콘솔에서 확인 가능하다.
+  /emial
+    /css
+      bootstrap.css
+    /js
+      content.js
+      react.js
+      react-dom.js
+      script.js
+    /jsx
+      content.jsx
+      script.jsx
+    index.html
+  */
+  // 이메일 폼 시작하기
+  class Content extends React.Component {
+    constructor(props) {
+      super(props)
+      this.submit = this.submit.bind(this)
+      this.propmpt = 'please enter your email to win $1,000,000'    // 클래스 속성 정의
+    }
+    submit(event) {
+      let emailAddress = this.refs.emailAddress
+      let comments = this.refs.comments
+      console.log(ReactDOM.findDOMNode(emailAddress).value)   // 참조를 이용해서 이메일 주소 입력 값에 접근하여 출력한다.
+      console.log(ReactDOM.findDOMNode(comments).value)
+    }
+  }
+  // 이메일 폼의 render() 메서드
+  render() {
+    return (
+      <div className='well'>
+        <p>{this.prompt}</p>                    // Content 컴포넌트의 this.prompt 값을 출력한다.
+        <div className='form-group'>
+          Email: <input ref="emailAddress" className="form-control" type="text" placeholder="hi@azat.co" />
+          /*
+          placeholder 속성이 있는 이메일 입력 영역을 구현한다.
+          placeholder 속성은 입력할 내용을 알려주는 시각적 장치다.
+          className과 ref 속성도 사용했다.
+          */
+        </div>
+        <div className="form-group"
+        >
+          Comments: <textarea ref="comments" className="form-control" placeholder="I like your website" />
+        </div>
+        <div className="form-group"
+        >
+          <a className="btn btn-primary" value="Submit" onClick={this.submit}>Submit</a>  // onClick 이벤트가 있는 제출 버튼에서 this.submit을 호출한다.
+        </div>
+      </div>
+    )
+  }
+  /*
+  <textarea>의 일반적인 HTML DOM 노드는 innerHTML을 입력 값으로 사용한다. 앞에서 언급한 것처럼 React에서는 <textarea>에 value를 사용할 수 있다.
+  폼 요소의 API가 일관성이 있어 얻을 수 있는 멋진 기능이다. 동시에 ReactDOM.findDOMNode()가 DOM 노드를 반환하므로 innerHTML 같은 
+  일반적인 HTML 속성이나 getAttribute() 같은 메서드에도 접근할 수 있다.
+
+  이제 특정 엘리먼트의 이벤트 핸들러에서 뿐만 아니라, 컴포넌트 메서드 어디에서든 요소와 입력값에 접근하는 방법을 알게 되었다.
+  다시 말하지만, 참조를 사용하는 것은 비제어 엘리먼트를 사용하는 경우처럼 흔하지 않은 경우다. 
+  참조를 과도하게 사용하는 것은 좋지 않다.
+  대부분의 경우 제어 엘리먼트에서 참조를 사용하는 대신 컴포넌트 상태를 사용한다.
+
+  JSX의 ref 속성으로 함수를 할당하는 것도 가능하다. 이 함수는 엘리먼트를 마운팅할 때 한 번만 실행된다.
+  이 함수에서 DOM 노드를 this.emailInpt처럼 인스턴스의 속성으로 저장할 수 있다.
+  */
+  <input ref={(input) => {this.emailInput = input}}
+    className="form-control"
+    type="text"
+    placeholder="hi@azat.co"
+  />
+  /*
+  비제어 컴포넌트는 상태 변경이나 변경을 감지하는 것이 선택 사항이므로 코딩해야 할 양이 적다.
+  그렇지만 또 다른 문제점이 있다. value를 상태에 연결하거나 하드코딩한 값을 넣을수 없다.
+  넣으려면 비제어 엘리먼트를 사용해야 한다(비제어 엘리먼트는 value={this.state.email} 같은 방식으로 작성할 수 없다).
+  기본값을 어떻게 지정할까?
+  예를 들어 대출 신청서를 일부만 입력하고 저장한 다음 나중에 다시 작성한다고 해보자. 
+  사용자가 이미 입력한 내용을 보여주어야 하지만, value 속성을 사용할 수 없다.
+  */
+```
+
+#### 기본값 설정하기
+```
+  대출 신청서 예제의 일부 영역에 기존 데이터를 입력해줘야 한다고 가정해 보자.
+  일반적인 HTML 이라면 폼 영역에 value를 작성하면 사용자가 페이지에서 값을 변경할 수 있다.
+  그렇지만 React는 value, checked, selected를 뷰와 엘리먼트 내부 상태에서 일관되게 유지한다.
+  React에서 다음과 같이 입력 값을 하드코딩하면 읽기 전용이 되어버린다.
+  <input type="text" name="new-book-title" value="Node: The Best Parts" />
+
+  대부분의 경우 이런 것을 원하지 않을 것이다. 따라서 React는 특별한 속성인 defaultValue를 이용해서 
+  입력값을 설정하고, 사용자가 폼 요소를 수정할 수 있도록 했다.
+
+  예를 들어 폼이 이전에 저장된 경우, 사용자를 위해 <input> 영역을 미리 채워 놓으려고 한다.
+  이런 경우 폼 요소에 defaultValue 속성을 사용한다. 
+  입력 영역의 기본값을 다음과 같이 설정할 수 있다.
+  <input type=text" name="new-book-title" defaultValue="Node: The Best Parts" />
+
+  defaultValue 대신 value 속성(value="JSX")을 사용하면 이 엘리먼트는 읽기 전용이 되어버린다.
+  제어 엘리먼트가 될 뿐만 아니라, 그림 7-14(cf: p.236)처럼 사용자가 <input> 요소에 입력하더라도 값이 바뀌지 않는다.
+  이것은 value를 하드코딩했기 때문에 React가 해당 값을 유지하는 것이다.
+  아마도 여러분이 원하는 결과는 아닐 것이다.
+  실제 애플리케이션에서 React는 속성을 통해 입력 값을 가져올 것이다.(this.props.name)
+  <input type="text" name="new-book-title" defaultValue={this.props.title} />
+  
+  또는 상태를 이용할 수도 있다.
+  <input type="text" name="new-book-title" defaultValue={this.state.title} />
+
+  React의 defaultValue 기능은 주로 비제어 컴포넌트와 함께 사용한다. 그렇지만 참조를 사용하면 defaultValue를 제어 컴포넌트나 다른 경우에도 사용할 수 있다.
+  제어 컴포넌트에서는 생성자에서 기본값을 상태로 설정할 수 있으므로 크게 중요하지 않다. 예를 들면 this.state = {defaultName: 'Abe Lincoln'} 이라고 작성할 수 있다.
+
+  대부분의 UI 작업이 편리한 폼 요소를 통해 이뤄진다. 아름다우면서도 이해하고 사용하기 쉽게 만들어야 한다. 
+  사용자 친화적인 오류 메세지, 프론트엔드 유효성 검사, 그 외의 툴팁, 크기를 변경할 수 있는 라디오 버튼, 기본값, 플레이스홀더 같은 중요한 기능들도 다뤄야 한다.
+  UI를 개발하다 보면 복잡해지고, 금세 통제 불능 상태가 되곤한다! 다행히도 React는 브라우저간 차이가 없는 폼 요소 API를 제공하므로 복잡한 UI 개발 작업이 좀 더 쉬워진다.
+```
+
+### 요약
+```
+  - 폼을 다루는 방법 중 권장하는 방법은 변경을 감지하여 이벤트 리스너로 상태에 데이터를 저장하는 제어 컴포넌트를 사용하는 것이다.
+  - 변경을 감지하거나 감지하지 않는 비제어 컴포넌트를 사용하는 방법으 좋은 방법이 아니므로 피하는 것이 좋다.
+  - 참조와 기본값은 모든 경우 사용할 수 있지만, 제어 컴포넌트의 경우에는 사용할 필요가 없다.
+  - React의 <textarea>는 innerHTML 대신 value 속성을 사용한다.
+  - this.refs.NAME은 클래스 참조에 접근하는 방법이다.
+  - defaultValue는 엘리먼트의 초기 뷰(DOM)를 설정할 때 사용할 수 있다.
+  - 참조를 설정하려면 ref={el => {this.input = el;}} 처럼 함수를 사용하거나 ref="NAME" 으로 문자열을 사용할 수 있다.
+```

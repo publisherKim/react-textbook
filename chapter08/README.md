@@ -23,3 +23,72 @@
   속성 타입을 사용해서 좀 더 개발자 친화적인 코드를 만들 수 있고, 컴포넌트 이름과 고차 컴포넌트를 사용해서 효율적인 작업을 할 수 있게 될 것이다.
   팀 동료들이 여러분의 우아한 해결 방법에 감탄할지도 모른다.
 ```
+
+### 컴포넌트의 기본 속성
+```javascript
+  // 예를 들어 행의 수(rows), 언어(locale), 현재날짜(current date)를 필수 속성으로 하는 Datepicker 컴포넌트를 개발한다고 가정해보자.
+
+  <Datepicker currentDate={Date()} locale="US" rows={4} />
+  /*
+  만약 새로운 동료가 이 컴포넌트를 사용하면서 필수 속성인 currentDate를 누락한다면 어떻게 해야 할까?
+  달력이 몇 행인지 지정하면서 숫자4 대신 문자열 "4"를 입력했다면 어떨까? 컴포넌트가 아무 작동도 하지 않고 undefined를 반환하거나
+  아예 멈춰버려서 컴포넌트를 사용하던 동료가 "RefeeneceError가 나는데요?"라며 여러분을 탓할지도 모른다. 아이고!
+
+  안타깝지만 자바스크립트가 느슨한 타입 언어이므로 이런 광경은 웹 개발에서 흔히 볼 수 있다.
+  다행히 React는 속성의 기본값을 설정할 수 있는 기능으로 defaultProps를 정적 클래스 속성으로 추가할 수 있다.
+  속성 타입에 대한 무제는 다음 절에서 자세히 살펴본다.
+
+  defaultProps를 설정하면 컴포넌트 속성이 누락되었을 때 기본값을 렌더링할 수 있는 이점이 있다.
+  defaultProps를 정의하여 컴포넌트 클래스에 기본 속성을 설정한다. 예를 들어 앞서 이야기한 Datepicker 
+  컴포넌트 정의에서도 defaultProps를 정적 클래스 속성으로 추가할 수 있다.
+  (construcor()에서 인스터스 속성으로 추가하면 정상적으로 작동하지 않는다.)
+  */
+  class Datepicker extends React.Component {
+    ...
+  }
+  Datepicker.defaultProps = {
+    currentDate: Date(),
+    rows: 4,
+    locale: 'US'
+  }
+
+  /*
+  defaultProps를 더 자세히 설명하기 위해 버튼을 렌더링 하는 컴포넌트가 있다고 가정해보자.
+  일반적으로 버튼에 라벨이 있기는 하지만, 라벨을 사용자 정의할 수 있으면 좋을 것이다.
+  또한, 사용자 정의 값이 누락된 경우에는 기본값을 보여주면 좋겠다.
+
+  버튼의 라벨은 buttonLabel 속성으로 render()의 return 문에서 사용한다. 부모가 버튼에 별도로 라벨을 지정하지 않아도
+  Submit이라는 텍스트를 항상 보여주려고 한다.
+  buttonLabel의 기본 값을 포함한 객체인 정적 클래스 속성 defaultProps를 구현하면 기본 라벨을 보여줄 수 있다.
+  */
+  class Button extends React.Component {
+    render() {
+      return <button className="btn">{this.props.buttonLabel}</button>
+    }
+  }
+  Button.defaultProps = {buttonLabel: 'Submit'}
+  
+  // 부모 컴포넌트인 Conent가 버튼 네 개를 렌더링한다. 이 버튼 중 세 개에는 속성이 누락되었다.
+  class Content extends React.Component {
+    render() {
+      return (
+        <div>
+          <Button buttonLabel="start"></Button>
+          <Button></Button>
+          <Button></Button>
+          <Button></Button>
+        </div>
+      )
+    }
+  }
+  /*
+  렌더링 결과는 어떨까 ? 첫 번째 버튼의 라벨에는 Start가 적혀 있고, 나머지 버튼의 라벨에는 Submit이라고 적힌 것을 확인할 수 있다.
+
+  컴포넌트에 기본 속성 값을 설정하는 것은 좋은 방법이다. 오류에 더 잘 대응할 수 있기 때문이다.
+  즉, 아무런 값을 전달하지 않았을 때도 최소한의 형태를 유지하는, 좀 더 영리한 컴포넌트를 만들 수 있다.
+
+  다른 관점에서 보면 기본값을 설정하여 같은 값을 반복해서 다시 설정하는 것을 피할 수 있다.
+  대부분의 경우 같은 속성을 사용하지만 기본값을 덮어써서 변경할 수 있게 하고 싶다면 defaultProps 기능을 사용하여 간단하게 해결할 수 있다.
+  예제에서 살펴본 첫 번째 버튼의 경우 처럼 기본값을 덮어쓰는 것은 아무런 문제도 일으키지 않는다.
+  */
+```

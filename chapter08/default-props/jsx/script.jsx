@@ -1,4 +1,4 @@
 ReactDOM.render(
-  <Button />,
+  <Content />,
   document.getElementById('content')
 )
